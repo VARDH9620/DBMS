@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VTU DBMS Preparatory Notebook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent2: #10b981;
+      --soft: rgba(59, 130, 246, 0.1);
+      --warn: rgba(245, 158, 11, 0.1);
+      --code: #020617;
+      --border-radius: 20px;
+      --card-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.6);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 25%);
+      background-attachment: fixed;
+      line-height: 1.7;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    header {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(37, 99, 235, 0.8));
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: var(--border-radius);
+      padding: 48px 40px;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      margin-bottom: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.03em; }
+    h1 { font-size: 3rem; background: linear-gradient(to right, #93c5fd, #e0e7ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px; }
+    header h1 { background: none; -webkit-text-fill-color: #fff; }
+    h2 { font-size: 2.2rem; color: #60a5fa; margin-top: 32px; }
+    h3 { font-size: 1.5rem; color: #93c5fd; }
+    h4 { font-size: 1.15rem; color: #34d399; text-transform: uppercase; letter-spacing: 0.08em; }
+    p { margin: 14px 0; }
+    .meta, .small { color: #bfdbfe; font-size: 1.1rem; opacity: 0.9; max-width: 800px; margin: 12px auto; }
+    .small { font-size: 0.95rem; opacity: 0.7; }
+    
+    /* Cards */
+    .note, .assumption, .summary-box, .source-box {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-left: 5px solid var(--accent);
+      padding: 24px 28px;
+      border-radius: 16px;
+      margin: 28px 0;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
+    }
+    .note:hover, .assumption:hover, .summary-box:hover, .source-box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+    }
+    .assumption { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+    .summary-box { border-left-color: var(--accent2); background: rgba(16, 185, 129, 0.05); }
+    .source-box { border-left-color: #a78bfa; background: rgba(167, 139, 250, 0.05); }
+    
+    /* TOC Clickable Buttons Styling */
+    .toc {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--border-radius);
+      padding: 40px;
+      margin: 40px 0;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .toc h2 {
+      margin-bottom: 32px;
+      text-align: center;
+      font-size: 2.4rem;
+      background: linear-gradient(to right, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .toc ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    /* Outer list (Modules) */
+    .toc > ul {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .toc > ul > li {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .toc > ul > li > a {
+      display: block;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #f8fafc;
+      text-decoration: none;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(59, 130, 246, 0.5);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .toc > ul > li > a:hover {
+      color: #60a5fa;
+      border-color: #60a5fa;
+    }
+    /* Inner list (Questions) */
+    .toc > ul > li > ul {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) {
+      .toc > ul > li > ul {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .toc > ul > li > ul > li > a {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #bfdbfe;
+      padding: 16px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      line-height: 1.4;
+      position: relative;
+      overflow: hidden;
+    }
+    .toc > ul > li > ul > li > a::before {
+      content: "";
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      transition: left 0.5s ease;
+    }
+    .toc > ul > li > ul > li > a:hover::before {
+      left: 100%;
+    }
+    .toc > ul > li > ul > li > a:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.5);
+      border-color: var(--accent);
+    }
+    
+    section.module { margin: 56px 0; }
+    .module-head {
+      background: linear-gradient(90deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 8px solid #60a5fa;
+      border-radius: 16px;
+      padding: 24px 32px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 32px;
+    }
+    .module-head h2 { margin: 0; color: #f8fafc; font-size: 2rem; }
+    article.q {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 40px;
+      margin: 32px 0;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    article.q:hover {
+      border-color: rgba(96, 165, 250, 0.4);
+      transform: translateY(-2px);
+    }
+    .tag {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    }
+    .formula {
+      background: #020617;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-left: 4px solid var(--accent);
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-family: "JetBrains Mono", "Courier New", monospace;
+      color: #38bdf8;
+      white-space: pre-wrap;
+      box-shadow: inset 0 2px 15px rgba(0,0,0,0.8);
+      font-size: 1.05rem;
+    }
+    .diagram {
+      background: #f8fafc;
+      border: 4px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 32px;
+      margin: 32px 0;
+      overflow: auto;
+      text-align: center;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+    .diagram-title { 
+      font-weight: 800; 
+      color: #1e293b; 
+      margin-bottom: 24px; 
+      font-size: 1.1rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.08em; 
+      border-bottom: 2px dashed #cbd5e1;
+      padding-bottom: 12px;
+      display: inline-block;
+    }
+    svg { max-width: 100%; height: auto; }
+    pre {
+      background: #020617;
+      color: #e2e8f0;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: auto;
+      font-size: 0.95rem;
+      box-shadow: inset 0 4px 20px rgba(0,0,0,0.6);
+    }
+    code { font-family: "JetBrains Mono", "Courier New", monospace; }
+    table { 
+      width: 100%; 
+      border-collapse: separate; 
+      border-spacing: 0;
+      margin: 24px 0; 
+      background: rgba(30, 41, 59, 0.8); 
+      border-radius: 12px; 
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    th, td { 
+      border-bottom: 1px solid rgba(255,255,255,0.05); 
+      padding: 16px 20px; 
+      vertical-align: top; 
+    }
+    th { 
+      background: rgba(59, 130, 246, 0.15); 
+      color: #93c5fd; 
+      font-weight: 700; 
+      text-align: left; 
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+    td:first-child, th:first-child { border-left: none; }
+    td:last-child, th:last-child { border-right: none; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    
+    ul, ol { margin: 16px 0 16px 24px; }
+    li { margin-bottom: 8px; }
+    .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .pill {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin: 4px 8px 4px 0;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    footer {
+      margin: 64px 0 32px;
+      color: #64748b;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 32px;
+      font-size: 0.95rem;
+    }
+    a { color: #60a5fa; text-decoration: none; transition: all 0.2s; }
+    a:hover { color: #93c5fd; text-shadow: 0 0 8px rgba(96, 165, 250, 0.5); }
+    
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { 
+      background: #334155; 
+      border-radius: 6px; 
+      border: 3px solid var(--bg);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    
+    @media print {
+      body { background: #fff; color: #000; }
+      .wrap { max-width: none; padding: 10px; }
+      header { background: #f8fafc; color: #000; box-shadow: none; border: 1px solid #cbd5e1; }
+      h1, header h1, .toc h2 { background: none; color: #0f172a; -webkit-text-fill-color: #0f172a; }
+      .q, .module-head, .toc { box-shadow: none; border: 1px solid #cbd5e1; background: #fff; }
+      .module-head h2 { color: #0f172a; }
+      a { text-decoration: none; color: inherit; }
+      .note, .assumption, .summary-box, .source-box { background: #f8fafc; border: 1px solid #cbd5e1; color: #000; }
+      .tag { border: 1px solid #cbd5e1; color: #000; background: #f8fafc; box-shadow: none; }
+      .toc > ul > li > ul > li > a { border: 1px solid #cbd5e1; color: #000; background: #f8fafc; }
+      .diagram { border-color: #cbd5e1; }
+      th { background: #f1f5f9; color: #0f172a; }
+      td, th { border-color: #cbd5e1; }
+      table { background: #fff; border-color: #cbd5e1; }
+      .formula, pre { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>DBMS Preparatory Exam HTML Notebook</h1>
+      <p class="meta">Detailed VTU exam-writing style answers for the questions extracted from <b>Preparatory.pdf</b>.</p>
+      <p class="small">Prepared as a self-contained notebook with structured answers, formulas, examples, and neat inline diagrams suitable for 8–10 mark and 15–20 mark engineering exam questions.</p>
+    </header>
+
+    <div class="note">
+      <h3>How this notebook is organized</h3>
+      <ol>
+        <li>Each module is reproduced as a separate section.</li>
+        <li>Each answer starts with a clear definition or introduction.</li>
+        <li>Proper headings, subheadings, formulas, diagrams, advantages, disadvantages, applications, and a short conclusion are included wherever relevant.</li>
+        <li>For a few questions in the PDF that mention a “given schema” or “given relation” but do not actually provide one, a standard academic schema/example has been explicitly assumed and solved step-by-step.</li>
+      </ol>
+    </div>
+
+    <div class="source-box">
+      <h3>Web references used while preparing the notebook</h3>
+      <ul>
+        <li>PostgreSQL documentation on <b>CREATE VIEW</b> and updatable views.</li>
+        <li>PostgreSQL documentation on <b>trigger functions</b>, <code>NEW</code>, <code>OLD</code>, <code>BEFORE/AFTER/INSTEAD OF</code>, and audit examples.</li>
+        <li>UC Berkeley CS186 notes on <b>Two-Phase Locking</b>, waits-for graph, deadlocks, and lock management.</li>
+        <li>University ER-model lecture notes for conceptual definitions, entity types, attributes, weak entities, and participation/cardinality constraints.</li>
+        <li>University relational algebra lecture notes for formal relational algebra notation and operators.</li>
+      </ul>
+    </div>
+
+    <div class="toc">
+      <h2>Table of Contents</h2>
+      <ul>
+        <li><a href="#m1">Module 1: Introduction to Databases &amp; ER Model</a>
+          <ul>
+            <li><a href="#m1q1">Q1. Three-schema architecture of DBMS</a></li>
+            <li><a href="#m1q2">Q2. Data independence</a></li>
+            <li><a href="#m1q3">Q3. ER model and library ER diagram</a></li>
+            <li><a href="#m1q4">Q4. Attributes, relationships and constraints in ER modeling</a></li>
+            <li><a href="#m1q5">Q5. File processing system vs DBMS</a></li>
+          </ul>
+        </li>
+        <li><a href="#m2">Module 2: Relational Model &amp; Relational Algebra</a>
+          <ul>
+            <li><a href="#m2q1">Q1. Fundamental operations of relational algebra</a></li>
+            <li><a href="#m2q2">Q2. Super key, candidate key, primary key, alternate key, foreign key</a></li>
+            <li><a href="#m2q3">Q3. Relational data model and integrity constraints</a></li>
+            <li><a href="#m2q4">Q4. Mapping ER model to relational schema</a></li>
+            <li><a href="#m2q5">Q5. Relational algebra expressions on an assumed schema</a></li>
+          </ul>
+        </li>
+        <li><a href="#m3">Module 3: SQL</a>
+          <ul>
+            <li><a href="#m3q1">Q1. DDL, DML, DCL and TCL</a></li>
+            <li><a href="#m3q2">Q2. SQL queries: joins, aggregates, nested queries, GROUP BY and HAVING</a></li>
+            <li><a href="#m3q3">Q3. Views in SQL</a></li>
+            <li><a href="#m3q4">Q4. Triggers</a></li>
+            <li><a href="#m3q5">Q5. Student database query set</a></li>
+          </ul>
+        </li>
+        <li><a href="#m4">Module 4: Functional Dependencies &amp; Normalization</a>
+          <ul>
+            <li><a href="#m4q1">Q1. Functional dependency and its types</a></li>
+            <li><a href="#m4q2">Q2. 1NF, 2NF and 3NF</a></li>
+            <li><a href="#m4q3">Q3. BCNF</a></li>
+            <li><a href="#m4q4">Q4. Step-by-step normalization up to 3NF/BCNF</a></li>
+            <li><a href="#m4q5">Q5. Lossless join decomposition and dependency preservation</a></li>
+          </ul>
+        </li>
+        <li><a href="#m5">Module 5: Transactions, Concurrency Control &amp; Recovery</a>
+          <ul>
+            <li><a href="#m5q1">Q1. Transaction and ACID properties</a></li>
+            <li><a href="#m5q2">Q2. Serializability, conflict serializability, view serializability</a></li>
+            <li><a href="#m5q3">Q3. Two-Phase Locking protocol</a></li>
+            <li><a href="#m5q4">Q4. Concurrency control techniques</a></li>
+            <li><a href="#m5q5">Q5. Recovery techniques</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <section class="module" id="m1">
+      <div class="module-head"><h2>Module 1: Introduction to Databases &amp; ER Model</h2></div>
+
+      <article class="q" id="m1q1">
+        <div class="tag">Module 1 • Q1</div>
+        <h3>Explain the three-schema architecture of DBMS with a neat diagram. How does it provide logical and physical data independence?</h3>
+        <h4>Definition / Introduction</h4>
+        <p>The <b>three-schema architecture</b>, also called the <b>three-level architecture</b> of a DBMS, is a standard framework used to separate user views, overall logical structure, and physical storage details of a database. Its main purpose is to achieve <b>data abstraction</b> and <b>data independence</b>.</p>
+
+        <div class="diagram">
+          <div class="diagram-title">Neat diagram: Three-schema architecture</div>
+          <svg viewBox="0 0 920 360" role="img" aria-label="Three schema architecture diagram">
+            <rect x="40" y="25" width="240" height="70" rx="12" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
+            <rect x="340" y="25" width="240" height="70" rx="12" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
+            <rect x="640" y="25" width="240" height="70" rx="12" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
+            <text x="160" y="53" text-anchor="middle" font-size="22" fill="#173a8b" font-weight="bold">External Schema 1</text>
+            <text x="160" y="78" text-anchor="middle" font-size="17" fill="#173a8b">View of User A</text>
+            <text x="460" y="53" text-anchor="middle" font-size="22" fill="#173a8b" font-weight="bold">External Schema 2</text>
+            <text x="460" y="78" text-anchor="middle" font-size="17" fill="#173a8b">View of User B</text>
+            <text x="760" y="53" text-anchor="middle" font-size="22" fill="#173a8b" font-weight="bold">External Schema n</text>
+            <text x="760" y="78" text-anchor="middle" font-size="17" fill="#173a8b">View of User n</text>
+
+            <rect x="240" y="140" width="440" height="85" rx="14" fill="#eefbf5" stroke="#0c7c59" stroke-width="2"/>
+            <text x="460" y="176" text-anchor="middle" font-size="25" fill="#0c7c59" font-weight="bold">Conceptual Schema</text>
+            <text x="460" y="204" text-anchor="middle" font-size="18" fill="#0c7c59">Global logical structure of the entire database</text>
+
+            <rect x="240" y="272" width="440" height="65" rx="14" fill="#fff7e8" stroke="#c08b00" stroke-width="2"/>
+            <text x="460" y="307" text-anchor="middle" font-size="25" fill="#8a6300" font-weight="bold">Internal Schema</text>
+            <text x="460" y="327" text-anchor="middle" font-size="16" fill="#8a6300">Files, indexes, record placement, access paths</text>
+
+            <line x1="160" y1="95" x2="360" y2="140" stroke="#2247a5" stroke-width="2" marker-end="url(#a)"/>
+            <line x1="460" y1="95" x2="460" y2="140" stroke="#2247a5" stroke-width="2" marker-end="url(#a)"/>
+            <line x1="760" y1="95" x2="560" y2="140" stroke="#2247a5" stroke-width="2" marker-end="url(#a)"/>
+            <line x1="460" y1="225" x2="460" y2="272" stroke="#0c7c59" stroke-width="2" marker-end="url(#a)"/>
+            <text x="610" y="121" font-size="15" fill="#2247a5">External / Conceptual mapping</text>
+            <text x="515" y="252" font-size="15" fill="#0c7c59">Conceptual / Internal mapping</text>
+            <defs>
+              <marker id="a" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#333"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <h4>Explanation of the three levels</h4>
+        <ol>
+          <li><b>External level (View level):</b> It contains multiple user views. Each user or application sees only the required part of the database.</li>
+          <li><b>Conceptual level (Logical level):</b> It describes the complete logical structure of the database such as entities, attributes, relationships, and constraints.</li>
+          <li><b>Internal level (Physical level):</b> It specifies how data is actually stored on disk, for example files, indexes, hashing, compression, and storage blocks.</li>
+        </ol>
+
+        <h4>Mappings in the architecture</h4>
+        <ul>
+          <li><b>External–conceptual mapping:</b> Connects each user view to the conceptual schema.</li>
+          <li><b>Conceptual–internal mapping:</b> Connects logical structure to physical storage.</li>
+        </ul>
+
+        <h4>How it provides data independence</h4>
+        <p>Data independence means that a change at one schema level should not force changes at the next higher level.</p>
+        <ol>
+          <li><b>Physical data independence:</b> Changes in the internal schema do not affect the conceptual schema.
+            <ul>
+              <li>Example: changing file organization from sequential to B+ tree indexing.</li>
+              <li>Example: moving data to another disk or adding indexes for faster retrieval.</li>
+            </ul>
+          </li>
+          <li><b>Logical data independence:</b> Changes in the conceptual schema do not affect external schemas or application programs.
+            <ul>
+              <li>Example: adding a new attribute <code>Email</code> to <code>STUDENT</code> should not disturb an old payroll or results application that does not use it.</li>
+              <li>Example: splitting one large relation into two related relations while preserving user views.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Provides high level of abstraction.</li>
+          <li>Improves security because users see only required views.</li>
+          <li>Reduces application maintenance.</li>
+          <li>Makes database design modular and flexible.</li>
+        </ul>
+
+        <h4>Disadvantages / Limitations</h4>
+        <ul>
+          <li>Implementation complexity is high.</li>
+          <li>Complete logical data independence is difficult to achieve in practice.</li>
+          <li>Mapping overhead may add design complexity.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <p>This architecture is used in banking systems, ERP applications, university information systems, hospital management systems, and enterprise databases where multiple users require different views of the same data.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> Thus, the three-schema architecture is a fundamental DBMS design model that separates view, logical, and physical levels. By isolating these levels through mappings, it achieves logical and physical data independence and makes databases easier to maintain and scale.</div>
+      </article>
+
+      <article class="q" id="m1q2">
+        <div class="tag">Module 1 • Q2</div>
+        <h3>Define data independence. Explain logical data independence and physical data independence with suitable examples.</h3>
+        <h4>Definition</h4>
+        <p><b>Data independence</b> is the ability to change the schema at one level of a database system without requiring changes at the next higher level. It is one of the major objectives of DBMS design.</p>
+
+        <h4>Need for data independence</h4>
+        <ul>
+          <li>Database structure changes over time.</li>
+          <li>Storage methods improve due to optimization.</li>
+          <li>Applications should continue working with minimum modification.</li>
+        </ul>
+
+        <h4>Types of data independence</h4>
+        <h4>1) Physical data independence</h4>
+        <p>Physical data independence is the immunity of the conceptual schema from changes in the internal schema.</p>
+        <p><b>In simple words:</b> changes in storage should not affect the logical structure of the database.</p>
+        <h4>Examples</h4>
+        <ol>
+          <li>Changing the file organization from heap file to indexed file.</li>
+          <li>Adding B-tree or hash index on a relation.</li>
+          <li>Changing block size or storage location.</li>
+          <li>Using compression or partitioning for performance.</li>
+        </ol>
+        <p><b>Observation:</b> user queries such as <code>SELECT * FROM STUDENT</code> remain unchanged.</p>
+
+        <h4>2) Logical data independence</h4>
+        <p>Logical data independence is the immunity of external schemas and application programs from changes in the conceptual schema.</p>
+        <p><b>In simple words:</b> changes in the logical structure should not affect user views.</p>
+        <h4>Examples</h4>
+        <ol>
+          <li>Adding a new attribute <code>Phone_No</code> to <code>STUDENT</code>.</li>
+          <li>Splitting relation <code>EMPLOYEE(EmpID, Name, DeptName)</code> into <code>EMPLOYEE(EmpID, Name, DeptID)</code> and <code>DEPARTMENT(DeptID, DeptName)</code>.</li>
+          <li>Introducing a new relation while keeping existing views unchanged.</li>
+        </ol>
+
+        <h4>Comparison between logical and physical data independence</h4>
+        <table>
+          <tr><th>Basis</th><th>Physical Data Independence</th><th>Logical Data Independence</th></tr>
+          <tr><td>Level affected</td><td>Internal level</td><td>Conceptual level</td></tr>
+          <tr><td>Higher level protected</td><td>Conceptual schema</td><td>External schema / programs</td></tr>
+          <tr><td>Ease of achievement</td><td>Relatively easier</td><td>Relatively difficult</td></tr>
+          <tr><td>Example</td><td>Add index</td><td>Add attribute or split relation</td></tr>
+        </table>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Improves portability and longevity of applications.</li>
+          <li>Reduces maintenance cost.</li>
+          <li>Supports database tuning without disturbing users.</li>
+          <li>Enables gradual schema evolution.</li>
+        </ul>
+
+        <h4>Limitations</h4>
+        <ul>
+          <li>Not absolute in real systems.</li>
+          <li>Major logical redesign may still force application changes.</li>
+          <li>Legacy systems often have weaker logical data independence.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Hence, data independence is the key feature that distinguishes DBMS from traditional file systems. Physical data independence hides storage changes, whereas logical data independence hides changes in the logical structure from application programs.</div>
+      </article>
+
+      <article class="q" id="m1q3">
+        <div class="tag">Module 1 • Q3</div>
+        <h3>What is an Entity-Relationship (ER) model? Draw a neat ER diagram for a Library Management System and explain its components.</h3>
+        <h4>Definition / Introduction</h4>
+        <p>The <b>Entity-Relationship (ER) model</b> is a high-level conceptual data model used for database design. It represents real-world objects as <b>entities</b>, their properties as <b>attributes</b>, and associations among them as <b>relationships</b>.</p>
+
+        <h4>Main components of ER model</h4>
+        <ol>
+          <li><b>Entity:</b> A distinguishable real-world object such as Book, Member, or Librarian.</li>
+          <li><b>Attribute:</b> A property of an entity such as Book_ID, Title, Name, Phone.</li>
+          <li><b>Relationship:</b> Association among entities such as a Member borrows a Book_Copy.</li>
+          <li><b>Key attribute:</b> An attribute that uniquely identifies entity instances.</li>
+          <li><b>Constraints:</b> Cardinality and participation restrictions.</li>
+        </ol>
+
+        <div class="diagram">
+          <div class="diagram-title">ER diagram for Library Management System</div>
+          <svg viewBox="0 0 980 500" role="img" aria-label="ER diagram for library management system">
+            <rect x="55" y="60" width="180" height="110" rx="12" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
+            <text x="145" y="90" text-anchor="middle" font-size="24" font-weight="bold" fill="#173a8b">BOOK</text>
+            <text x="145" y="118" text-anchor="middle" font-size="16">ISBN (PK)</text>
+            <text x="145" y="140" text-anchor="middle" font-size="16">Title</text>
+            <text x="145" y="162" text-anchor="middle" font-size="16">Publisher, Category</text>
+
+            <rect x="405" y="55" width="190" height="120" rx="12" fill="#eefbf5" stroke="#0c7c59" stroke-width="2"/>
+            <text x="500" y="86" text-anchor="middle" font-size="24" font-weight="bold" fill="#0c7c59">COPY</text>
+            <text x="500" y="115" text-anchor="middle" font-size="16">Copy_ID (PK)</text>
+            <text x="500" y="137" text-anchor="middle" font-size="16">Status</text>
+            <text x="500" y="159" text-anchor="middle" font-size="16">Rack_No, ISBN (FK)</text>
+
+            <rect x="735" y="60" width="190" height="110" rx="12" fill="#fff7e8" stroke="#c08b00" stroke-width="2"/>
+            <text x="830" y="90" text-anchor="middle" font-size="24" font-weight="bold" fill="#8a6300">MEMBER</text>
+            <text x="830" y="118" text-anchor="middle" font-size="16">Member_ID (PK)</text>
+            <text x="830" y="140" text-anchor="middle" font-size="16">Name</text>
+            <text x="830" y="162" text-anchor="middle" font-size="16">Dept, Phone</text>
+
+            <rect x="390" y="295" width="220" height="130" rx="12" fill="#f6f7fb" stroke="#5a6478" stroke-width="2"/>
+            <text x="500" y="328" text-anchor="middle" font-size="24" font-weight="bold" fill="#394150">LOAN</text>
+            <text x="500" y="355" text-anchor="middle" font-size="16">Loan_ID (PK)</text>
+            <text x="500" y="377" text-anchor="middle" font-size="16">Issue_Date, Due_Date</text>
+            <text x="500" y="399" text-anchor="middle" font-size="16">Return_Date, Fine</text>
+
+            <line x1="235" y1="115" x2="405" y2="115" stroke="#2247a5" stroke-width="2"/>
+            <text x="320" y="104" text-anchor="middle" font-size="15">1 : N</text>
+            <text x="320" y="132" text-anchor="middle" font-size="15">has copies</text>
+
+            <line x1="500" y1="175" x2="500" y2="295" stroke="#0c7c59" stroke-width="2"/>
+            <text x="535" y="241" font-size="15">1 : N</text>
+            <text x="535" y="260" font-size="15">is issued in</text>
+
+            <line x1="735" y1="170" x2="570" y2="295" stroke="#c08b00" stroke-width="2"/>
+            <text x="700" y="235" font-size="15">1 : N</text>
+            <text x="664" y="255" font-size="15">borrows</text>
+          </svg>
+        </div>
+
+        <h4>Explanation of the diagram</h4>
+        <ol>
+          <li><b>BOOK</b> stores bibliographic details of a title. ISBN is the key attribute.</li>
+          <li><b>COPY</b> represents physical copies of a book. One book can have many copies.</li>
+          <li><b>MEMBER</b> stores student/staff information who can borrow books.</li>
+          <li><b>LOAN</b> is an associative entity that records borrowing transactions including issue date, due date, return date, and fine.</li>
+        </ol>
+
+        <h4>Cardinality and participation</h4>
+        <ul>
+          <li>BOOK to COPY = <b>1:N</b>.</li>
+          <li>MEMBER to LOAN = <b>1:N</b>.</li>
+          <li>COPY to LOAN = <b>1:N</b> over time, but typically one active loan at a given instant.</li>
+        </ul>
+
+        <h4>Advantages of ER model</h4>
+        <ul>
+          <li>Easy to understand and communicate with users.</li>
+          <li>Captures real-world semantics effectively.</li>
+          <li>Acts as a bridge between requirement analysis and relational design.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <p>ER modeling is used in library systems, banking systems, hospital databases, inventory management, and online commerce applications.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> Therefore, the ER model is a powerful conceptual tool for representing entities, attributes, relationships, and constraints. The Library Management ER diagram clearly shows how books, copies, members, and loans are interconnected in a practical database design.</div>
+      </article>
+
+      <article class="q" id="m1q4">
+        <div class="tag">Module 1 • Q4</div>
+        <h3>Explain different types of attributes, relationships, and constraints used in ER modeling with examples.</h3>
+        <h4>Introduction</h4>
+        <p>ER modeling uses three major building blocks: <b>attributes</b>, <b>relationships</b>, and <b>constraints</b>. Proper understanding of these elements is necessary for correct conceptual database design.</p>
+
+        <h4>1) Types of attributes</h4>
+        <ol>
+          <li><b>Simple (atomic) attribute:</b> cannot be subdivided. Example: Age, Salary.</li>
+          <li><b>Composite attribute:</b> can be broken into components. Example: Address = House_No, Street, City, PIN.</li>
+          <li><b>Single-valued attribute:</b> has only one value for each entity. Example: Date_of_Birth.</li>
+          <li><b>Multi-valued attribute:</b> can have multiple values. Example: Phone_Numbers, Skills.</li>
+          <li><b>Derived attribute:</b> obtained from another attribute. Example: Age derived from Date_of_Birth.</li>
+          <li><b>Key attribute:</b> uniquely identifies an entity. Example: USN in STUDENT.</li>
+          <li><b>Null-valued attribute:</b> value may be unknown or not applicable. Example: Middle_Name.</li>
+        </ol>
+
+        <h4>2) Types of relationships</h4>
+        <ol>
+          <li><b>Unary (recursive) relationship:</b> relationship among entities of the same set. Example: EMPLOYEE supervises EMPLOYEE.</li>
+          <li><b>Binary relationship:</b> between two entity sets. Example: STUDENT enrolls in COURSE.</li>
+          <li><b>Ternary relationship:</b> among three entity sets. Example: SUPPLIER supplies PART to PROJECT.</li>
+          <li><b>Relationship with attributes:</b> Example: WORKS_ON has attribute Hours.</li>
+        </ol>
+
+        <h4>Cardinality ratios of relationships</h4>
+        <ul>
+          <li><b>1:1</b> – One department has one manager.</li>
+          <li><b>1:N</b> – One department has many employees.</li>
+          <li><b>M:N</b> – One student enrolls in many courses and one course has many students.</li>
+        </ul>
+
+        <h4>3) Constraints in ER modeling</h4>
+        <ol>
+          <li><b>Cardinality constraint:</b> specifies number of entities participating in a relationship.
+            <ul>
+              <li>Example: One customer can place many orders.</li>
+            </ul>
+          </li>
+          <li><b>Participation constraint:</b> specifies whether participation is total or partial.
+            <ul>
+              <li><b>Total participation:</b> every EMPLOYEE must belong to some DEPARTMENT.</li>
+              <li><b>Partial participation:</b> only some EMPLOYEES manage departments.</li>
+            </ul>
+          </li>
+          <li><b>Key constraint:</b> ensures uniqueness through key attributes.</li>
+          <li><b>Existence dependency:</b> weak entity depends on owner entity. Example: DEPENDENT depends on EMPLOYEE.</li>
+        </ol>
+
+        <h4>Advantages of proper constraint specification</h4>
+        <ul>
+          <li>Improves semantic correctness of design.</li>
+          <li>Reduces ambiguity in requirements.</li>
+          <li>Helps during relational schema conversion.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <p>These concepts are essential in designing academic, banking, airline, manufacturing, and healthcare databases.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> In ER modeling, attributes describe properties, relationships describe associations, and constraints specify the rules of participation and cardinality. Together, they produce a precise conceptual representation of the application domain.</div>
+      </article>
+
+      <article class="q" id="m1q5">
+        <div class="tag">Module 1 • Q5</div>
+        <h3>Compare the traditional file processing system with a database management system. Discuss the advantages of DBMS over file systems.</h3>
+        <h4>Introduction</h4>
+        <p>Before the evolution of DBMS, organizations stored data in separate application-oriented files. This approach is known as the <b>traditional file processing system</b>. A DBMS is a software system that stores, organizes, controls, and retrieves data in an integrated manner.</p>
+
+        <h4>Comparison between file system and DBMS</h4>
+        <table>
+          <tr><th>Parameter</th><th>File Processing System</th><th>DBMS</th></tr>
+          <tr><td>Data organization</td><td>Separate files for each application</td><td>Integrated database</td></tr>
+          <tr><td>Redundancy</td><td>High</td><td>Controlled / minimized</td></tr>
+          <tr><td>Consistency</td><td>Difficult to maintain</td><td>Better consistency using constraints and transactions</td></tr>
+          <tr><td>Data sharing</td><td>Poor</td><td>Excellent multi-user sharing</td></tr>
+          <tr><td>Security</td><td>Application dependent</td><td>Centralized authorization and access control</td></tr>
+          <tr><td>Concurrency control</td><td>Almost absent</td><td>Built-in concurrency control</td></tr>
+          <tr><td>Backup and recovery</td><td>Manual / weak</td><td>Systematic backup and crash recovery</td></tr>
+          <tr><td>Data independence</td><td>Very poor</td><td>Supported</td></tr>
+          <tr><td>Query capability</td><td>Program dependent</td><td>SQL-based flexible querying</td></tr>
+        </table>
+
+        <h4>Problems in file processing system</h4>
+        <ul>
+          <li>Data redundancy and inconsistency</li>
+          <li>Difficulty in accessing data</li>
+          <li>Data isolation across different files and formats</li>
+          <li>Integrity problems</li>
+          <li>Atomicity problems</li>
+          <li>Concurrent access anomalies</li>
+          <li>Weak security</li>
+        </ul>
+
+        <h4>Advantages of DBMS over file systems</h4>
+        <ol>
+          <li><b>Reduced redundancy:</b> same data need not be stored in many files.</li>
+          <li><b>Improved consistency:</b> updates are reflected uniformly.</li>
+          <li><b>Data independence:</b> applications are less affected by schema changes.</li>
+          <li><b>Multi-user access:</b> many users can access the same database safely.</li>
+          <li><b>Security and authorization:</b> role-based access can be enforced.</li>
+          <li><b>Integrity constraints:</b> primary key, foreign key, and domain rules maintain correctness.</li>
+          <li><b>Backup and recovery:</b> the database can be restored after failure.</li>
+          <li><b>Standard query language:</b> SQL supports easy data retrieval and manipulation.</li>
+        </ol>
+
+        <h4>Disadvantages of DBMS</h4>
+        <ul>
+          <li>Higher cost of software and hardware.</li>
+          <li>Requires trained personnel.</li>
+          <li>Performance overhead for very small specialized applications.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Hence, a DBMS overcomes most limitations of the traditional file system by providing centralized control, reduced redundancy, security, concurrency control, and recovery support. For modern organizations, DBMS is significantly superior to file processing systems.</div>
+      </article>
+    </section>
+
+    <section class="module" id="m2">
+      <div class="module-head"><h2>Module 2: Relational Model &amp; Relational Algebra</h2></div>
+
+      <article class="q" id="m2q1">
+        <div class="tag">Module 2 • Q1</div>
+        <h3>Explain the fundamental operations of Relational Algebra with suitable examples.</h3>
+        <h4>Definition / Introduction</h4>
+        <p><b>Relational Algebra</b> is a procedural query language used to specify what operations are to be performed on relations. It forms the theoretical foundation of relational DBMS query processing.</p>
+
+        <h4>Fundamental operations</h4>
+        <ol>
+          <li><b>Selection</b> <code>σ</code></li>
+          <li><b>Projection</b> <code>π</code></li>
+          <li><b>Union</b> <code>∪</code></li>
+          <li><b>Set Difference</b> <code>−</code></li>
+          <li><b>Cartesian Product</b> <code>×</code></li>
+          <li><b>Rename</b> <code>ρ</code></li>
+        </ol>
+
+        <h4>Formal notation and examples</h4>
+        <p>Assume relation <code>STUDENT(USN, Name, Dept, Sem)</code>.</p>
+
+        <div class="formula">Selection:  σp(R) = { t | t ∈ R and predicate p(t) is true }
+Example: σDept='CSE'(STUDENT)</div>
+        <p><b>Meaning:</b> selects only those tuples where department is CSE.</p>
+
+        <div class="formula">Projection:  πA1, A2, ..., An(R)
+Example: πUSN, Name(STUDENT)</div>
+        <p><b>Meaning:</b> retrieves only specified columns and removes duplicates.</p>
+
+        <div class="formula">Union:  R ∪ S
+Condition: R and S must be union-compatible.</div>
+        <p><b>Example:</b> <code>πUSN(PLACED_STUDENTS) ∪ πUSN(HIGHER_STUDIES)</code></p>
+
+        <div class="formula">Set Difference:  R − S
+Meaning: tuples in R but not in S</div>
+        <p><b>Example:</b> students registered in DBMS but not in OS.</p>
+
+        <div class="formula">Cartesian Product:  R × S</div>
+        <p><b>Meaning:</b> combines every tuple of <code>R</code> with every tuple of <code>S</code>. It is usually followed by selection to realize joins.</p>
+
+        <div class="formula">Rename:  ρX(R)  or  ρX(A1, A2, ..., An)(R)</div>
+        <p><b>Meaning:</b> changes relation name or attribute names.</p>
+
+        <h4>Derived operations</h4>
+        <ul>
+          <li><b>Intersection:</b> <code>R ∩ S = R − (R − S)</code></li>
+          <li><b>Join:</b> <code>R ⋈ S</code></li>
+          <li><b>Natural join</b>, <b>theta join</b>, <b>division</b> are also widely used derived operations.</li>
+        </ul>
+
+        <h4>Illustrative example of join</h4>
+        <p>Let <code>STUDENT(USN, Name, DeptID)</code> and <code>DEPT(DeptID, DeptName)</code>.</p>
+        <div class="formula">STUDENT ⋈STUDENT.DeptID = DEPT.DeptID DEPT</div>
+        <p>This gives student details along with department name.</p>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Provides mathematical basis for query processing.</li>
+          <li>Useful for query optimization.</li>
+          <li>Independent of implementation details.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <p>Relational algebra is used internally by query optimizers and is essential for understanding SQL translation, joins, views, and database theory.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> Therefore, relational algebra provides a set of fundamental and derived operations that manipulate relations systematically. It is the formal backbone of relational query processing.</div>
+      </article>
+
+      <article class="q" id="m2q2">
+        <div class="tag">Module 2 • Q2</div>
+        <h3>Define Super Key, Candidate Key, Primary Key, Alternate Key, and Foreign Key. Explain each with suitable examples.</h3>
+        <h4>Introduction</h4>
+        <p>Keys are attributes or sets of attributes used to uniquely identify tuples in a relation and to establish relationships among relations.</p>
+
+        <p>Consider relation <code>STUDENT(USN, Aadhaar, Email, Name, DeptID)</code>, where <code>USN</code>, <code>Aadhaar</code>, and <code>Email</code> are unique.</p>
+
+        <h4>1) Super Key</h4>
+        <p>A <b>super key</b> is any set of one or more attributes that uniquely identifies a tuple.</p>
+        <p><b>Examples:</b> <code>{USN}</code>, <code>{Aadhaar}</code>, <code>{Email}</code>, <code>{USN, Name}</code>.</p>
+
+        <h4>2) Candidate Key</h4>
+        <p>A <b>candidate key</b> is a minimal super key, that is, no proper subset of it can uniquely identify tuples.</p>
+        <p><b>Examples:</b> <code>{USN}</code>, <code>{Aadhaar}</code>, <code>{Email}</code>.</p>
+
+        <h4>3) Primary Key</h4>
+        <p>A <b>primary key</b> is the candidate key selected by the designer to identify tuples uniquely.</p>
+        <p><b>Example:</b> choosing <code>USN</code> as primary key.</p>
+
+        <h4>4) Alternate Key</h4>
+        <p>An <b>alternate key</b> is any candidate key that is not chosen as the primary key.</p>
+        <p><b>Example:</b> if <code>USN</code> is primary key, then <code>Aadhaar</code> and <code>Email</code> are alternate keys.</p>
+
+        <h4>5) Foreign Key</h4>
+        <p>A <b>foreign key</b> is an attribute in one relation that refers to the primary key of another relation.</p>
+        <p>Consider <code>DEPARTMENT(DeptID, DeptName)</code>. In <code>STUDENT(..., DeptID)</code>, the attribute <code>DeptID</code> is a foreign key referencing <code>DEPARTMENT(DeptID)</code>.</p>
+
+        <h4>Tabular comparison</h4>
+        <table>
+          <tr><th>Key Type</th><th>Purpose</th><th>Example</th></tr>
+          <tr><td>Super Key</td><td>Uniquely identifies tuple</td><td>{USN, Name}</td></tr>
+          <tr><td>Candidate Key</td><td>Minimal super key</td><td>{USN}</td></tr>
+          <tr><td>Primary Key</td><td>Main selected identifier</td><td>USN</td></tr>
+          <tr><td>Alternate Key</td><td>Unused candidate key</td><td>Email</td></tr>
+          <tr><td>Foreign Key</td><td>References another relation</td><td>DeptID</td></tr>
+        </table>
+
+        <h4>Importance of keys</h4>
+        <ul>
+          <li>Ensure uniqueness.</li>
+          <li>Prevent duplicate tuples.</li>
+          <li>Support referential integrity.</li>
+          <li>Help in indexing and efficient retrieval.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Keys are the backbone of relational database design. They uniquely identify tuples, maintain integrity, and create meaningful links among relations.</div>
+      </article>
+
+      <article class="q" id="m2q3">
+        <div class="tag">Module 2 • Q3</div>
+        <h3>Explain the relational data model and its integrity constraints with examples.</h3>
+        <h4>Definition</h4>
+        <p>The <b>relational data model</b> represents data as a collection of <b>relations</b> (tables). Each relation consists of rows called <b>tuples</b> and columns called <b>attributes</b>.</p>
+
+        <h4>Basic terms</h4>
+        <ul>
+          <li><b>Relation:</b> table</li>
+          <li><b>Tuple:</b> row</li>
+          <li><b>Attribute:</b> column</li>
+          <li><b>Domain:</b> set of valid values for an attribute</li>
+          <li><b>Schema:</b> structure of a relation</li>
+          <li><b>Instance:</b> current contents of a relation</li>
+        </ul>
+
+        <h4>Example</h4>
+        <pre>STUDENT(USN, Name, DeptID, Sem)
+DEPARTMENT(DeptID, DeptName)
+ENROLL(USN, CID, Marks)</pre>
+
+        <h4>Integrity constraints in relational model</h4>
+        <ol>
+          <li><b>Domain constraint</b>
+            <ul>
+              <li>Each attribute must take values only from its specified domain.</li>
+              <li>Example: <code>Sem</code> must be between 1 and 8.</li>
+            </ul>
+          </li>
+          <li><b>Key constraint</b>
+            <ul>
+              <li>No two tuples can have the same primary key value.</li>
+              <li>Example: no two students can have the same USN.</li>
+            </ul>
+          </li>
+          <li><b>Entity integrity constraint</b>
+            <ul>
+              <li>Primary key cannot be null.</li>
+              <li>Example: <code>USN</code> in STUDENT must always have a value.</li>
+            </ul>
+          </li>
+          <li><b>Referential integrity constraint</b>
+            <ul>
+              <li>A foreign key value must either match an existing primary key value in the referenced relation or be null, if allowed.</li>
+              <li>Example: <code>DeptID</code> in STUDENT must exist in DEPARTMENT.</li>
+            </ul>
+          </li>
+          <li><b>General / semantic constraints</b>
+            <ul>
+              <li>User-defined business rules.</li>
+              <li>Example: Marks must be between 0 and 100.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h4>Advantages of relational model</h4>
+        <ul>
+          <li>Simple tabular representation.</li>
+          <li>Strong mathematical foundation.</li>
+          <li>Easy querying using SQL.</li>
+          <li>Reduced redundancy through normalization.</li>
+        </ul>
+
+        <h4>Disadvantages</h4>
+        <ul>
+          <li>Complex joins may reduce performance.</li>
+          <li>Hierarchical or graph-like data may be less natural to model.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> The relational data model represents data in tables and maintains correctness through integrity constraints such as domain, key, entity integrity, and referential integrity constraints.</div>
+      </article>
+
+      <article class="q" id="m2q4">
+        <div class="tag">Module 2 • Q4</div>
+        <h3>Explain the process of mapping an ER model into a relational schema with suitable examples.</h3>
+        <h4>Introduction</h4>
+        <p>ER-to-relational mapping is the process of converting a conceptual ER design into implementable relational tables. The purpose is to transform entities, relationships, and attributes into relations, primary keys, and foreign keys.</p>
+
+        <div class="diagram">
+          <div class="diagram-title">Mapping flow from ER model to relational schema</div>
+          <svg viewBox="0 0 920 220" role="img" aria-label="ER to relational mapping diagram">
+            <rect x="25" y="55" width="170" height="90" rx="12" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
+            <text x="110" y="92" text-anchor="middle" font-size="24" font-weight="bold" fill="#173a8b">Entity</text>
+            <text x="110" y="120" text-anchor="middle" font-size="16">→ Relation/Table</text>
+            <rect x="250" y="55" width="170" height="90" rx="12" fill="#eefbf5" stroke="#0c7c59" stroke-width="2"/>
+            <text x="335" y="92" text-anchor="middle" font-size="24" font-weight="bold" fill="#0c7c59">1 : N</text>
+            <text x="335" y="120" text-anchor="middle" font-size="16">→ Foreign Key on N-side</text>
+            <rect x="475" y="55" width="170" height="90" rx="12" fill="#fff7e8" stroke="#c08b00" stroke-width="2"/>
+            <text x="560" y="92" text-anchor="middle" font-size="24" font-weight="bold" fill="#8a6300">M : N</text>
+            <text x="560" y="120" text-anchor="middle" font-size="16">→ New Relation</text>
+            <rect x="700" y="55" width="190" height="90" rx="12" fill="#f6f7fb" stroke="#5a6478" stroke-width="2"/>
+            <text x="795" y="92" text-anchor="middle" font-size="24" font-weight="bold" fill="#394150">Multivalued Attr</text>
+            <text x="795" y="120" text-anchor="middle" font-size="16">→ Separate Relation</text>
+            <line x1="195" y1="100" x2="250" y2="100" stroke="#444" stroke-width="2" marker-end="url(#b)"/>
+            <line x1="420" y1="100" x2="475" y2="100" stroke="#444" stroke-width="2" marker-end="url(#b)"/>
+            <line x1="645" y1="100" x2="700" y2="100" stroke="#444" stroke-width="2" marker-end="url(#b)"/>
+            <defs><marker id="b" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#333"/></marker></defs>
+          </svg>
+        </div>
+
+        <h4>Step-by-step mapping rules</h4>
+        <ol>
+          <li><b>Map regular (strong) entity type</b>
+            <ul>
+              <li>Create one relation for each entity.</li>
+              <li>Include all simple attributes.</li>
+              <li>Choose the key attribute as primary key.</li>
+              <li>Example: <code>STUDENT(USN, Name, Sem)</code></li>
+            </ul>
+          </li>
+          <li><b>Map weak entity type</b>
+            <ul>
+              <li>Create a relation for the weak entity.</li>
+              <li>Include its partial key and the owner’s primary key as foreign key.</li>
+              <li>The combined key becomes primary key.</li>
+              <li>Example: <code>DEPENDENT(EmpID, DepName, Age)</code>, PK = <code>(EmpID, DepName)</code></li>
+            </ul>
+          </li>
+          <li><b>Map binary 1:1 relationship</b>
+            <ul>
+              <li>Add foreign key of one relation to the other, preferably on the side with total participation.</li>
+              <li>Relationship attributes may also be stored there.</li>
+            </ul>
+          </li>
+          <li><b>Map binary 1:N relationship</b>
+            <ul>
+              <li>Add primary key of the 1-side as a foreign key to the N-side relation.</li>
+              <li>Example: <code>DEPARTMENT(DeptID)</code> and <code>EMPLOYEE(..., DeptID)</code></li>
+            </ul>
+          </li>
+          <li><b>Map binary M:N relationship</b>
+            <ul>
+              <li>Create a new relation.</li>
+              <li>Include primary keys of participating relations as foreign keys.</li>
+              <li>Include relationship attributes.</li>
+              <li>Example: <code>ENROLL(USN, CID, Marks)</code></li>
+            </ul>
+          </li>
+          <li><b>Map multivalued attribute</b>
+            <ul>
+              <li>Create a separate relation consisting of key of owner entity + multivalued attribute.</li>
+              <li>Example: <code>STUDENT_PHONE(USN, PhoneNo)</code></li>
+            </ul>
+          </li>
+          <li><b>Map n-ary relationship</b>
+            <ul>
+              <li>Create a new relation containing keys of all participating entities plus relationship attributes.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h4>Illustrative example</h4>
+        <p>Suppose the ER model contains <b>STUDENT</b>, <b>COURSE</b>, and relationship <b>ENROLLS</b> with attribute <b>Grade</b>.</p>
+        <pre>STUDENT(USN, Name, Sem)
+COURSE(CID, Title, Credits)
+ENROLL(USN, CID, Grade)</pre>
+        <p>Here, <code>ENROLL</code> is created because the relationship is M:N.</p>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Systematic conversion of conceptual design into physical implementation.</li>
+          <li>Preserves semantics through keys and constraints.</li>
+          <li>Supports normalization and integrity checking.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> ER-to-relational mapping converts strong entities, weak entities, and relationships into tables with primary keys and foreign keys. It is an essential step in logical database design.</div>
+      </article>
+
+      <article class="q" id="m2q5">
+        <div class="tag">Module 2 • Q5</div>
+        <h3>Using Relational Algebra, write expressions for the given database schema and explain the steps involved in obtaining the result.</h3>
+        <div class="assumption"><b>Assumption:</b> The PDF mentions a “given database schema” but does not include one. Hence, the following standard academic schema is assumed for demonstration: <code>STUDENT(USN, Name, DeptID)</code>, <code>DEPARTMENT(DeptID, DeptName)</code>, <code>COURSE(CID, Title, DeptID)</code>, <code>ENROLL(USN, CID, Marks)</code>.</div>
+
+        <h4>Query 1: List names of all CSE students</h4>
+        <div class="formula">R1 = STUDENT ⋈STUDENT.DeptID = DEPARTMENT.DeptID DEPARTMENT
+Answer = πName(σDeptName = 'CSE'(R1))</div>
+        <h4>Steps</h4>
+        <ol>
+          <li>Join STUDENT with DEPARTMENT using DeptID.</li>
+          <li>Select tuples where DeptName = CSE.</li>
+          <li>Project only Name.</li>
+        </ol>
+
+        <h4>Query 2: Find names of students enrolled in DBMS course</h4>
+        <div class="formula">R1 = COURSE ⋈COURSE.CID = ENROLL.CID ENROLL
+R2 = σTitle = 'DBMS'(R1)
+R3 = R2 ⋈R2.USN = STUDENT.USN STUDENT
+Answer = πName(R3)</div>
+
+        <h4>Query 3: Find titles of courses offered by CSE department</h4>
+        <div class="formula">R1 = COURSE ⋈COURSE.DeptID = DEPARTMENT.DeptID DEPARTMENT
+R2 = σDeptName = 'CSE'(R1)
+Answer = πTitle(R2)</div>
+
+        <h4>Query 4: Find students scoring more than 90</h4>
+        <div class="formula">R1 = σMarks > 90(ENROLL)
+R2 = R1 ⋈R1.USN = STUDENT.USN STUDENT
+Answer = πUSN, Name, Marks(R2)</div>
+
+        <h4>Query 5: Find students enrolled in all courses (division concept)</h4>
+        <div class="formula">R1 = πUSN, CID(ENROLL)
+R2 = πCID(COURSE)
+Answer = R1 ÷ R2</div>
+        <p><b>Meaning:</b> the result contains those USNs that are related to every CID in COURSE.</p>
+
+        <h4>Important observations</h4>
+        <ul>
+          <li>Selection reduces rows.</li>
+          <li>Projection reduces columns.</li>
+          <li>Join combines related relations.</li>
+          <li>Division is used for “for all” type queries.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Thus, relational algebra expressions are built by applying selection, projection, join, and other operations step-by-step. Even when the exact schema is not provided, the method remains systematic and exam-friendly.</div>
+      </article>
+    </section>
+
+    <section class="module" id="m3">
+      <div class="module-head"><h2>Module 3: SQL</h2></div>
+
+      <article class="q" id="m3q1">
+        <div class="tag">Module 3 • Q1</div>
+        <h3>Explain the SQL language categories DDL, DML, DCL, and TCL with suitable commands and examples.</h3>
+        <h4>Introduction</h4>
+        <p><b>SQL (Structured Query Language)</b> is the standard language used for defining, manipulating, controlling, and managing data in relational databases. SQL commands are broadly classified into DDL, DML, DCL, and TCL.</p>
+
+        <h4>1) DDL – Data Definition Language</h4>
+        <p>DDL commands are used to define or modify the structure of database objects such as tables, views, schemas, and indexes.</p>
+        <p><b>Common commands:</b> <code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code>, <code>RENAME</code></p>
+        <pre>CREATE TABLE Student(
+  USN VARCHAR(10) PRIMARY KEY,
+  Name VARCHAR(30),
+  DeptID INT,
+  Sem INT
+);
+
+ALTER TABLE Student ADD Email VARCHAR(40);
+DROP TABLE Student;</pre>
+
+        <h4>2) DML – Data Manipulation Language</h4>
+        <p>DML commands are used to insert, modify, delete, and retrieve data from tables.</p>
+        <p><b>Common commands:</b> <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>SELECT</code></p>
+        <pre>INSERT INTO Student VALUES('1RV23CS001', 'Asha', 10, 3);
+UPDATE Student SET Sem = 4 WHERE USN = '1RV23CS001';
+DELETE FROM Student WHERE USN = '1RV23CS001';
+SELECT * FROM Student;</pre>
+
+        <h4>3) DCL – Data Control Language</h4>
+        <p>DCL commands control access privileges on database objects.</p>
+        <p><b>Common commands:</b> <code>GRANT</code>, <code>REVOKE</code></p>
+        <pre>GRANT SELECT, INSERT ON Student TO faculty_user;
+REVOKE INSERT ON Student FROM faculty_user;</pre>
+
+        <h4>4) TCL – Transaction Control Language</h4>
+        <p>TCL commands manage transactions and ensure consistency of operations.</p>
+        <p><b>Common commands:</b> <code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></p>
+        <pre>UPDATE Account SET Balance = Balance - 500 WHERE AccNo = 101;
+SAVEPOINT s1;
+UPDATE Account SET Balance = Balance + 500 WHERE AccNo = 202;
+COMMIT;
+-- or ROLLBACK TO s1;</pre>
+
+        <h4>Comparison table</h4>
+        <table>
+          <tr><th>Category</th><th>Purpose</th><th>Examples</th></tr>
+          <tr><td>DDL</td><td>Defines structure</td><td>CREATE, ALTER, DROP</td></tr>
+          <tr><td>DML</td><td>Manipulates data</td><td>SELECT, INSERT, UPDATE, DELETE</td></tr>
+          <tr><td>DCL</td><td>Controls privileges</td><td>GRANT, REVOKE</td></tr>
+          <tr><td>TCL</td><td>Controls transactions</td><td>COMMIT, ROLLBACK, SAVEPOINT</td></tr>
+        </table>
+
+        <h4>Applications</h4>
+        <p>Together these categories cover schema creation, data processing, security management, and transaction management in all practical relational database systems.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> SQL is not a single-purpose language. DDL defines structures, DML manipulates data, DCL manages permissions, and TCL ensures reliable transaction execution.</div>
+      </article>
+
+      <article class="q" id="m3q2">
+        <div class="tag">Module 3 • Q2</div>
+        <h3>Write SQL queries for the following operations using a Student database: Joins, Aggregate Functions, Nested Queries, GROUP BY and HAVING clauses.</h3>
+        <div class="assumption"><b>Assumed schema:</b> <code>Student(USN, Name, DeptID, Sem)</code>, <code>Department(DeptID, DeptName)</code>, <code>Course(CID, Title, Credits)</code>, <code>Enroll(USN, CID, Marks)</code>.</div>
+
+        <h4>1) Joins</h4>
+        <p><b>Question:</b> Display student name, department name, course title, and marks.</p>
+        <pre>SELECT s.USN, s.Name, d.DeptName, c.Title, e.Marks
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID
+JOIN Enroll e ON s.USN = e.USN
+JOIN Course c ON e.CID = c.CID;</pre>
+        <p><b>Explanation:</b> The query joins four related tables to display integrated information from multiple relations.</p>
+
+        <h4>2) Aggregate functions</h4>
+        <pre>SELECT AVG(Marks) AS AvgMarks,
+       MAX(Marks) AS Highest,
+       MIN(Marks) AS Lowest,
+       COUNT(*)   AS TotalEnrollments
+FROM Enroll;</pre>
+        <p>This query calculates average, maximum, minimum, and total number of enrollment records.</p>
+
+        <h4>3) Nested query</h4>
+        <p><b>Question:</b> Find names of students who scored above the average marks.</p>
+        <pre>SELECT s.Name, e.Marks
+FROM Student s
+JOIN Enroll e ON s.USN = e.USN
+WHERE e.Marks > (SELECT AVG(Marks) FROM Enroll);</pre>
+        <p>The inner query finds average marks; the outer query selects students whose marks exceed that average.</p>
+
+        <h4>4) GROUP BY</h4>
+        <p><b>Question:</b> Find department-wise average marks.</p>
+        <pre>SELECT d.DeptName, AVG(e.Marks) AS AvgMarks
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID
+JOIN Enroll e ON s.USN = e.USN
+GROUP BY d.DeptName;</pre>
+
+        <h4>5) HAVING clause</h4>
+        <p><b>Question:</b> Display only those departments whose average marks are above 75.</p>
+        <pre>SELECT d.DeptName, AVG(e.Marks) AS AvgMarks
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID
+JOIN Enroll e ON s.USN = e.USN
+GROUP BY d.DeptName
+HAVING AVG(e.Marks) > 75;</pre>
+
+        <h4>Step-by-step note for exam</h4>
+        <ol>
+          <li>Use <code>JOIN</code> when data is distributed across multiple tables.</li>
+          <li>Use aggregate functions such as <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MAX</code>, <code>MIN</code> for summary data.</li>
+          <li>Use nested queries when one query depends on the result of another.</li>
+          <li>Use <code>GROUP BY</code> to form groups.</li>
+          <li>Use <code>HAVING</code> to filter groups, whereas <code>WHERE</code> filters rows before grouping.</li>
+        </ol>
+
+        <div class="summary-box"><b>Conclusion:</b> SQL provides powerful constructs such as joins, aggregates, subqueries, grouping, and HAVING clauses to answer simple as well as complex data retrieval requirements efficiently.</div>
+      </article>
+
+      <article class="q" id="m3q3">
+        <div class="tag">Module 3 • Q3</div>
+        <h3>What are Views in SQL? Explain the creation, modification, and deletion of views with suitable examples.</h3>
+        <h4>Definition</h4>
+        <p>A <b>view</b> is a virtual table whose contents are derived from a SQL query. It does not necessarily store data physically; instead, it presents data from one or more base tables in a customized form.</p>
+
+        <h4>Need for views</h4>
+        <ul>
+          <li>To simplify complex queries.</li>
+          <li>To provide security by exposing limited columns/rows.</li>
+          <li>To hide implementation complexity.</li>
+          <li>To present logical subsets of data to different users.</li>
+        </ul>
+
+        <h4>Syntax for creation of a view</h4>
+        <pre>CREATE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition;</pre>
+
+        <h4>Example: creation</h4>
+        <pre>CREATE VIEW CSE_Students AS
+SELECT s.USN, s.Name, d.DeptName
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID
+WHERE d.DeptName = 'CSE';</pre>
+        <p>This view shows only CSE students.</p>
+
+        <h4>Modification of a view</h4>
+        <p>In many DBMS products, modification is done using <code>CREATE OR REPLACE VIEW</code> or <code>ALTER VIEW</code>.</p>
+        <pre>CREATE OR REPLACE VIEW CSE_Students AS
+SELECT s.USN, s.Name, s.Sem, d.DeptName
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID
+WHERE d.DeptName = 'CSE';</pre>
+        <p>Now the view additionally includes semester.</p>
+
+        <h4>Deletion of a view</h4>
+        <pre>DROP VIEW CSE_Students;</pre>
+
+        <h4>Types of views</h4>
+        <ol>
+          <li><b>Simple view:</b> based on a single table, often updatable.</li>
+          <li><b>Complex view:</b> based on multiple tables, joins, aggregates, or grouping; generally read-only unless specific mechanisms are used.</li>
+        </ol>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Improves security.</li>
+          <li>Reduces query complexity.</li>
+          <li>Provides logical data independence.</li>
+          <li>Helps reuse common queries.</li>
+        </ul>
+
+        <h4>Disadvantages</h4>
+        <ul>
+          <li>Complex views may not be updatable.</li>
+          <li>Nested views can affect performance and readability.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <p>Views are widely used in reports, dashboards, restricted user access, academic portals, ERP systems, and data abstraction layers.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> A view is a virtual table created from a query. It is useful for simplification, security, and abstraction, and can be created, modified, and deleted using standard SQL commands.</div>
+      </article>
+
+      <article class="q" id="m3q4">
+        <div class="tag">Module 3 • Q4</div>
+        <h3>What are Triggers? Explain the syntax, working, and applications of triggers with suitable examples.</h3>
+        <h4>Definition</h4>
+        <p>A <b>trigger</b> is a database object or procedural program that is automatically executed by the DBMS in response to specified events such as <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> on a table or view.</p>
+
+        <h4>General syntax</h4>
+        <pre>CREATE TRIGGER trigger_name
+BEFORE | AFTER | INSTEAD OF
+INSERT OR UPDATE OR DELETE
+ON table_name
+FOR EACH ROW
+BEGIN
+   -- trigger body
+END;</pre>
+
+        <h4>Classification of triggers</h4>
+        <ul>
+          <li><b>BEFORE trigger:</b> executed before the event.</li>
+          <li><b>AFTER trigger:</b> executed after the event.</li>
+          <li><b>INSTEAD OF trigger:</b> often used on views.</li>
+          <li><b>Row-level trigger:</b> fires once for each affected row.</li>
+          <li><b>Statement-level trigger:</b> fires once for the whole SQL statement.</li>
+        </ul>
+
+        <h4>Working of a trigger</h4>
+        <ol>
+          <li>An event such as insert/update/delete occurs.</li>
+          <li>The DBMS checks whether a matching trigger exists.</li>
+          <li>The trigger body executes automatically.</li>
+          <li>It may validate data, modify values, log changes, or prevent invalid operations.</li>
+        </ol>
+
+        <h4>Example 1: validation trigger</h4>
+        <pre>CREATE TRIGGER Check_Marks
+BEFORE INSERT ON Enroll
+FOR EACH ROW
+BEGIN
+  IF NEW.Marks < 0 OR NEW.Marks > 100 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Marks must be between 0 and 100';
+  END IF;
+END;</pre>
+        <p>This trigger prevents invalid marks from being inserted.</p>
+
+        <h4>Example 2: audit trigger</h4>
+        <pre>CREATE TRIGGER Audit_Student_Update
+AFTER UPDATE ON Student
+FOR EACH ROW
+BEGIN
+  INSERT INTO Student_Audit(USN, OldName, NewName, ChangedOn)
+  VALUES(OLD.USN, OLD.Name, NEW.Name, CURRENT_TIMESTAMP);
+END;</pre>
+        <p>This trigger stores an audit trail whenever student data changes.</p>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Automatic enforcement of business rules.</li>
+          <li>Useful for auditing and logging.</li>
+          <li>Maintains derived values and consistency.</li>
+          <li>Reduces repetitive application-side checks.</li>
+        </ul>
+
+        <h4>Disadvantages</h4>
+        <ul>
+          <li>May become difficult to debug.</li>
+          <li>Hidden logic can reduce maintainability.</li>
+          <li>Excessive triggers may affect performance.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <ul>
+          <li>Audit logging</li>
+          <li>Security checks</li>
+          <li>Automatic timestamp updates</li>
+          <li>Validation of salary, marks, stock quantity, etc.</li>
+          <li>Implementing update behavior on complex views</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Triggers are event-driven database procedures that automatically execute in response to data changes. They are extremely useful for validation, auditing, and automated rule enforcement.</div>
+      </article>
+
+      <article class="q" id="m3q5">
+        <div class="tag">Module 3 • Q5</div>
+        <h3>Consider a student database. Write SQL queries to perform the following operations and explain the output: highest scorer, department-wise student count, students enrolled in multiple courses, second highest marks.</h3>
+        <div class="assumption"><b>Assumed schema:</b> <code>Student(USN, Name, DeptID)</code>, <code>Department(DeptID, DeptName)</code>, <code>Enroll(USN, CID, Marks)</code>.</div>
+
+        <h4>1) Find the highest scorer</h4>
+        <pre>SELECT s.USN, s.Name, e.Marks
+FROM Student s
+JOIN Enroll e ON s.USN = e.USN
+WHERE e.Marks = (SELECT MAX(Marks) FROM Enroll);</pre>
+        <p><b>Output explanation:</b> displays the student(s) whose marks are equal to the maximum marks in the Enroll table.</p>
+
+        <h4>2) Find department-wise student count</h4>
+        <pre>SELECT d.DeptName, COUNT(*) AS StudentCount
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID
+GROUP BY d.DeptName;</pre>
+        <p><b>Output explanation:</b> returns one row for each department along with the total number of students in that department.</p>
+
+        <h4>3) Retrieve students enrolled in multiple courses</h4>
+        <pre>SELECT s.USN, s.Name, COUNT(e.CID) AS NoOfCourses
+FROM Student s
+JOIN Enroll e ON s.USN = e.USN
+GROUP BY s.USN, s.Name
+HAVING COUNT(e.CID) > 1;</pre>
+        <p><b>Output explanation:</b> lists only those students whose number of enrolled courses is more than one.</p>
+
+        <h4>4) Display second highest marks</h4>
+        <pre>SELECT MAX(Marks) AS SecondHighest
+FROM Enroll
+WHERE Marks < (SELECT MAX(Marks) FROM Enroll);</pre>
+        <p><b>Output explanation:</b> finds the maximum mark among all marks below the topmost mark, hence gives the second highest marks value.</p>
+
+        <h4>Alternative query for second highest scorer details</h4>
+        <pre>SELECT s.USN, s.Name, e.Marks
+FROM Student s
+JOIN Enroll e ON s.USN = e.USN
+WHERE e.Marks = (
+  SELECT MAX(Marks)
+  FROM Enroll
+  WHERE Marks < (SELECT MAX(Marks) FROM Enroll)
+);</pre>
+
+        <div class="summary-box"><b>Conclusion:</b> SQL makes it straightforward to solve report-oriented student database problems by combining joins, grouping, HAVING, and nested queries.</div>
+      </article>
+    </section>
+
+    <section class="module" id="m4">
+      <div class="module-head"><h2>Module 4: Functional Dependencies &amp; Normalization</h2></div>
+
+      <article class="q" id="m4q1">
+        <div class="tag">Module 4 • Q1</div>
+        <h3>Define Functional Dependency. Explain trivial, non-trivial, and fully functional dependencies with suitable examples.</h3>
+        <h4>Definition</h4>
+        <p>A <b>functional dependency (FD)</b> is a relationship between attributes in a relation. For attributes <code>X</code> and <code>Y</code> of a relation <code>R</code>, the dependency <code>X → Y</code> means that whenever two tuples have the same value of <code>X</code>, they must also have the same value of <code>Y</code>.</p>
+
+        <div class="formula">If t1[X] = t2[X], then t1[Y] = t2[Y]
+Therefore, X → Y</div>
+
+        <h4>Example relation</h4>
+        <p>Consider <code>STUDENT(USN, Name, DeptID, DeptName)</code>.</p>
+        <ul>
+          <li><code>USN → Name, DeptID</code></li>
+          <li><code>DeptID → DeptName</code></li>
+        </ul>
+
+        <h4>1) Trivial functional dependency</h4>
+        <p>A dependency <code>X → Y</code> is <b>trivial</b> if <code>Y ⊆ X</code>.</p>
+        <p><b>Examples:</b> <code>{USN, Name} → Name</code>, <code>{A, B} → A</code></p>
+
+        <h4>2) Non-trivial functional dependency</h4>
+        <p>A dependency <code>X → Y</code> is <b>non-trivial</b> if <code>Y</code> is not a subset of <code>X</code>.</p>
+        <p><b>Examples:</b> <code>USN → Name</code>, <code>DeptID → DeptName</code></p>
+
+        <h4>3) Fully functional dependency</h4>
+        <p><code>Y</code> is said to be <b>fully functionally dependent</b> on <code>X</code> if <code>X → Y</code> holds, but no proper subset of <code>X</code> determines <code>Y</code>.</p>
+        <p>Consider <code>RESULT(USN, CID, Marks)</code>. Here:</p>
+        <ul>
+          <li><code>(USN, CID) → Marks</code></li>
+          <li>Neither <code>USN → Marks</code> nor <code>CID → Marks</code></li>
+          <li>Hence, <code>Marks</code> is fully functionally dependent on <code>(USN, CID)</code>.</li>
+        </ul>
+
+        <h4>Importance of FD</h4>
+        <ul>
+          <li>Basis for identifying keys</li>
+          <li>Essential for normalization</li>
+          <li>Helps reduce redundancy and anomalies</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Functional dependency expresses association among attributes. Trivial and non-trivial dependencies classify FDs, while fully functional dependency is especially important in removing partial dependency during normalization.</div>
+      </article>
+
+      <article class="q" id="m4q2">
+        <div class="tag">Module 4 • Q2</div>
+        <h3>Explain First Normal Form (1NF), Second Normal Form (2NF), and Third Normal Form (3NF) with suitable examples.</h3>
+        <h4>Introduction</h4>
+        <p><b>Normalization</b> is the process of organizing data in relations to minimize redundancy and eliminate insertion, deletion, and update anomalies.</p>
+
+        <div class="diagram">
+          <div class="diagram-title">Progression of normalization</div>
+          <svg viewBox="0 0 920 170" role="img" aria-label="Normalization progression diagram">
+            <rect x="25" y="45" width="180" height="70" rx="12" fill="#fff7e8" stroke="#c08b00" stroke-width="2"/>
+            <text x="115" y="80" text-anchor="middle" font-size="23" font-weight="bold" fill="#8a6300">1NF</text>
+            <text x="115" y="100" text-anchor="middle" font-size="15">Atomic attributes</text>
+            <rect x="370" y="45" width="180" height="70" rx="12" fill="#eefbf5" stroke="#0c7c59" stroke-width="2"/>
+            <text x="460" y="80" text-anchor="middle" font-size="23" font-weight="bold" fill="#0c7c59">2NF</text>
+            <text x="460" y="100" text-anchor="middle" font-size="15">Remove partial dependency</text>
+            <rect x="715" y="45" width="180" height="70" rx="12" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
+            <text x="805" y="80" text-anchor="middle" font-size="23" font-weight="bold" fill="#173a8b">3NF</text>
+            <text x="805" y="100" text-anchor="middle" font-size="15">Remove transitive dependency</text>
+            <line x1="205" y1="80" x2="370" y2="80" stroke="#444" stroke-width="2" marker-end="url(#c)"/>
+            <line x1="550" y1="80" x2="715" y2="80" stroke="#444" stroke-width="2" marker-end="url(#c)"/>
+            <defs><marker id="c" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#333"/></marker></defs>
+          </svg>
+        </div>
+
+        <h4>Example unnormalized relation</h4>
+        <p>Consider: <code>STUDENT_COURSE(USN, Name, DeptName, CID, CTitle, Instructor, Marks)</code></p>
+        <p>Assume key = <code>(USN, CID)</code>.</p>
+
+        <h4>1) First Normal Form (1NF)</h4>
+        <p>A relation is in 1NF if all attributes contain atomic values and there are no repeating groups or multivalued attributes.</p>
+        <ul>
+          <li>Each field must contain only one value.</li>
+          <li>Example: instead of storing <code>Phone = {9876, 9123}</code>, store them separately or in another relation.</li>
+        </ul>
+
+        <h4>2) Second Normal Form (2NF)</h4>
+        <p>A relation is in 2NF if it is in 1NF and every non-prime attribute is fully functionally dependent on the whole candidate key.</p>
+        <p><b>Partial dependencies in the example:</b></p>
+        <ul>
+          <li><code>USN → Name, DeptName</code></li>
+          <li><code>CID → CTitle, Instructor</code></li>
+        </ul>
+        <p>These depend on only part of the composite key, so the relation is not in 2NF.</p>
+        <p><b>Decomposition:</b></p>
+        <pre>STUDENT(USN, Name, DeptName)
+COURSE(CID, CTitle, Instructor)
+ENROLL(USN, CID, Marks)</pre>
+
+        <h4>3) Third Normal Form (3NF)</h4>
+        <p>A relation is in 3NF if it is in 2NF and has no transitive dependency of non-key attributes on a key.</p>
+        <p>Suppose in STUDENT relation, <code>USN → DeptID</code> and <code>DeptID → DeptName</code>. Then <code>USN → DeptName</code> is a transitive dependency.</p>
+        <p><b>3NF decomposition:</b></p>
+        <pre>STUDENT(USN, Name, DeptID)
+DEPARTMENT(DeptID, DeptName)
+COURSE(CID, CTitle, Instructor)
+ENROLL(USN, CID, Marks)</pre>
+
+        <h4>Advantages of normalization</h4>
+        <ul>
+          <li>Reduces redundancy</li>
+          <li>Eliminates anomalies</li>
+          <li>Improves consistency</li>
+          <li>Simplifies maintenance</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> 1NF removes repeating groups, 2NF removes partial dependencies, and 3NF removes transitive dependencies. Together, they significantly improve database design quality.</div>
+      </article>
+
+      <article class="q" id="m4q3">
+        <div class="tag">Module 4 • Q3</div>
+        <h3>What is Boyce-Codd Normal Form (BCNF)? Explain the conditions for BCNF with an example.</h3>
+        <h4>Definition</h4>
+        <p>A relation is in <b>Boyce-Codd Normal Form (BCNF)</b> if for every non-trivial functional dependency <code>X → Y</code> in the relation, <code>X</code> is a <b>super key</b>.</p>
+
+        <div class="formula">A relation R is in BCNF if for every non-trivial FD X → Y,
+X is a super key of R.</div>
+
+        <h4>Conditions for BCNF</h4>
+        <ol>
+          <li>The dependency must be non-trivial.</li>
+          <li>The determinant on the left-hand side must be a super key.</li>
+        </ol>
+
+        <h4>Why BCNF is stronger than 3NF</h4>
+        <p>3NF allows some dependencies where the right-hand side attribute is prime. BCNF does not allow that exception. Hence BCNF is stricter and reduces redundancy further.</p>
+
+        <h4>Example</h4>
+        <p>Consider relation <code>TEACHING(Student, Course, Instructor)</code> with FDs:</p>
+        <ul>
+          <li><code>(Student, Course) → Instructor</code></li>
+          <li><code>Instructor → Course</code></li>
+        </ul>
+        <p>Suppose one instructor teaches only one course. Then <code>Instructor → Course</code> holds.</p>
+        <p>Here, <code>Instructor</code> is not a super key, so the relation violates BCNF.</p>
+
+        <h4>BCNF decomposition</h4>
+        <pre>INSTRUCTOR_COURSE(Instructor, Course)
+STUDENT_INSTRUCTOR(Student, Instructor)</pre>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Removes more redundancy than 3NF.</li>
+          <li>Reduces anomalies significantly.</li>
+          <li>Produces cleaner designs where determinants are keys.</li>
+        </ul>
+
+        <h4>Disadvantages</h4>
+        <ul>
+          <li>Dependency preservation may not always be possible.</li>
+          <li>Sometimes more joins are required during querying.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> BCNF is a stronger form of normalization than 3NF. It requires every determinant to be a super key, thereby minimizing redundancy and dependency-related anomalies.</div>
+      </article>
+
+      <article class="q" id="m4q4">
+        <div class="tag">Module 4 • Q4</div>
+        <h3>Normalize the given relation step-by-step up to Third Normal Form (3NF) or BCNF, showing all intermediate steps.</h3>
+        <div class="assumption"><b>Assumption:</b> Since the PDF does not include a specific relation, the following standard example is used to demonstrate the complete method.</div>
+
+        <h4>Given relation</h4>
+        <pre>ENROLLMENT(SID, SName, DeptID, DeptName, CID, CName, InstructorID, InstructorName, Grade)</pre>
+        <p><b>Functional dependencies:</b></p>
+        <ul>
+          <li><code>SID → SName, DeptID</code></li>
+          <li><code>DeptID → DeptName</code></li>
+          <li><code>CID → CName, InstructorID</code></li>
+          <li><code>InstructorID → InstructorName</code></li>
+          <li><code>(SID, CID) → Grade</code></li>
+        </ul>
+        <p><b>Candidate key:</b> <code>(SID, CID)</code></p>
+
+        <h4>Step 1: Check for 1NF</h4>
+        <p>All attributes are atomic. Therefore, the relation is in <b>1NF</b>.</p>
+
+        <h4>Step 2: Convert 1NF to 2NF</h4>
+        <p>Since the candidate key is composite <code>(SID, CID)</code>, we check for partial dependencies.</p>
+        <ul>
+          <li><code>SID → SName, DeptID</code> is partial dependency.</li>
+          <li><code>CID → CName, InstructorID</code> is partial dependency.</li>
+        </ul>
+        <p>Hence, decompose into:</p>
+        <pre>STUDENT(SID, SName, DeptID)
+COURSE(CID, CName, InstructorID)
+ENROLLMENT(SID, CID, Grade, DeptName, InstructorName)</pre>
+        <p>But to avoid mixing transitively dependent attributes, it is better to isolate them properly in the next step.</p>
+
+        <h4>Step 3: Convert to proper 2NF structure</h4>
+        <pre>STUDENT(SID, SName, DeptID)
+COURSE(CID, CName, InstructorID)
+ENROLLMENT(SID, CID, Grade)</pre>
+        <p>Now all non-key attributes in each relation depend on the whole key. So these are in <b>2NF</b>.</p>
+
+        <h4>Step 4: Convert 2NF to 3NF</h4>
+        <p>Check for transitive dependencies:</p>
+        <ul>
+          <li>In STUDENT: <code>SID → DeptID</code> and <code>DeptID → DeptName</code></li>
+          <li>In COURSE: <code>CID → InstructorID</code> and <code>InstructorID → InstructorName</code></li>
+        </ul>
+        <p>So decompose further:</p>
+        <pre>STUDENT(SID, SName, DeptID)
+DEPARTMENT(DeptID, DeptName)
+COURSE(CID, CName, InstructorID)
+INSTRUCTOR(InstructorID, InstructorName)
+ENROLLMENT(SID, CID, Grade)</pre>
+        <p>Now there are no partial dependencies and no transitive dependencies. Hence the design is in <b>3NF</b>.</p>
+
+        <h4>Step 5: Check for BCNF</h4>
+        <ul>
+          <li>In STUDENT, determinant <code>SID</code> is a key.</li>
+          <li>In DEPARTMENT, determinant <code>DeptID</code> is a key.</li>
+          <li>In COURSE, determinant <code>CID</code> is a key.</li>
+          <li>In INSTRUCTOR, determinant <code>InstructorID</code> is a key.</li>
+          <li>In ENROLLMENT, determinant <code>(SID, CID)</code> is a key.</li>
+        </ul>
+        <p>Therefore, all resulting relations are also in <b>BCNF</b>.</p>
+
+        <h4>Final normalized set</h4>
+        <pre>STUDENT(SID, SName, DeptID)
+DEPARTMENT(DeptID, DeptName)
+COURSE(CID, CName, InstructorID)
+INSTRUCTOR(InstructorID, InstructorName)
+ENROLLMENT(SID, CID, Grade)</pre>
+
+        <h4>Benefits obtained</h4>
+        <ul>
+          <li>No update anomaly when department name changes.</li>
+          <li>No insertion anomaly for adding a new instructor or department.</li>
+          <li>No deletion anomaly causing accidental loss of department/instructor information.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> By identifying the candidate key, checking partial dependencies, and removing transitive dependencies, the original relation is decomposed step-by-step into 3NF and, in this example, even BCNF.</div>
+      </article>
+
+      <article class="q" id="m4q5">
+        <div class="tag">Module 4 • Q5</div>
+        <h3>Explain lossless join decomposition and dependency preservation with suitable examples.</h3>
+        <h4>Introduction</h4>
+        <p>When a relation is decomposed during normalization, two important properties are desirable:</p>
+        <ol>
+          <li><b>Lossless join decomposition</b></li>
+          <li><b>Dependency preservation</b></li>
+        </ol>
+
+        <h4>1) Lossless join decomposition</h4>
+        <p>A decomposition of relation <code>R</code> into <code>R1</code> and <code>R2</code> is <b>lossless</b> if the natural join of <code>R1</code> and <code>R2</code> always reconstructs the original relation exactly, without producing spurious tuples.</p>
+        <div class="formula">R = R1 ⋈ R2   (without spurious tuples)</div>
+
+        <h4>Condition for binary decomposition</h4>
+        <div class="formula">(R1 ∩ R2) → R1   or   (R1 ∩ R2) → R2</div>
+        <p>That is, the common attributes should functionally determine at least one of the decomposed relations.</p>
+
+        <h4>Example of lossless join</h4>
+        <p>Let <code>R(A, B, C)</code> with FD <code>A → B</code>. Decompose into:</p>
+        <pre>R1(A, B)
+R2(A, C)</pre>
+        <p>Common attribute is <code>A</code>. Since <code>A → AB</code>, the decomposition is lossless.</p>
+
+        <h4>Example of lossy decomposition</h4>
+        <pre>R1(A, B)
+R2(B, C)</pre>
+        <p>If no FD such as <code>B → A</code> or <code>B → C</code> exists, joining may generate incorrect spurious tuples. Hence it may be lossy.</p>
+
+        <h4>2) Dependency preservation</h4>
+        <p>A decomposition is <b>dependency preserving</b> if all original functional dependencies can be enforced by checking the decomposed relations individually, without joining them.</p>
+
+        <div class="formula">If F is the original FD set and F1, F2, ... are projected FDs,
+then (F1 ∪ F2 ∪ ...)⁺ = F⁺</div>
+
+        <h4>Example</h4>
+        <p>Suppose <code>R(A, B, C)</code> with FDs <code>A → B</code> and <code>B → C</code>. Decompose into:</p>
+        <pre>R1(A, B)
+R2(B, C)</pre>
+        <p>Here, <code>A → B</code> can be checked in <code>R1</code> and <code>B → C</code> in <code>R2</code>. Hence the decomposition is dependency preserving.</p>
+
+        <h4>Importance</h4>
+        <ul>
+          <li>Lossless join ensures correct reconstruction of data.</li>
+          <li>Dependency preservation ensures easy enforcement of constraints.</li>
+        </ul>
+
+        <h4>Trade-off</h4>
+        <p>Sometimes BCNF decomposition is lossless but not dependency preserving. In such cases, designers may prefer 3NF to preserve dependencies while still maintaining a good schema design.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> A good decomposition must ideally be both lossless and dependency preserving. Lossless join guarantees correctness of reconstruction, while dependency preservation guarantees correctness of constraint enforcement.</div>
+      </article>
+    </section>
+
+    <section class="module" id="m5">
+      <div class="module-head"><h2>Module 5: Transactions, Concurrency Control &amp; Recovery</h2></div>
+
+      <article class="q" id="m5q1">
+        <div class="tag">Module 5 • Q1</div>
+        <h3>What is a transaction? Explain the ACID properties of transactions with suitable examples.</h3>
+        <h4>Definition</h4>
+        <p>A <b>transaction</b> is a logical unit of work that consists of one or more database operations and must be executed completely or not at all. A transaction takes the database from one consistent state to another consistent state.</p>
+
+        <h4>Example: Bank transfer transaction</h4>
+        <pre>Read balance(A)
+A = A - 500
+Write balance(A)
+Read balance(B)
+B = B + 500
+Write balance(B)
+COMMIT</pre>
+        <p>Either all these operations must occur, or none must occur.</p>
+
+        <h4>ACID properties</h4>
+        <ol>
+          <li><b>Atomicity</b>
+            <ul>
+              <li>All operations of a transaction are performed completely, or none are performed.</li>
+              <li>If a failure occurs after debiting A but before crediting B, the system must roll back the debit.</li>
+            </ul>
+          </li>
+          <li><b>Consistency</b>
+            <ul>
+              <li>A transaction must preserve database rules and constraints.</li>
+              <li>Example: total money before and after transfer should remain the same.</li>
+            </ul>
+          </li>
+          <li><b>Isolation</b>
+            <ul>
+              <li>Concurrent transactions should not interfere in a way that produces incorrect results.</li>
+              <li>Each transaction should appear as if it is executing alone.</li>
+            </ul>
+          </li>
+          <li><b>Durability</b>
+            <ul>
+              <li>Once a transaction commits, its effects must persist even if a crash occurs immediately afterward.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h4>Transaction states</h4>
+        <ul>
+          <li>Active</li>
+          <li>Partially committed</li>
+          <li>Committed</li>
+          <li>Failed</li>
+          <li>Aborted</li>
+        </ul>
+
+        <h4>Advantages of transactions</h4>
+        <ul>
+          <li>Ensures reliability of updates.</li>
+          <li>Prevents inconsistent data.</li>
+          <li>Supports safe multi-user operations.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> A transaction is a reliable unit of database work. Its correctness is ensured by the ACID properties: Atomicity, Consistency, Isolation, and Durability.</div>
+      </article>
+
+      <article class="q" id="m5q2">
+        <div class="tag">Module 5 • Q2</div>
+        <h3>Define serializability. Explain conflict serializability and view serializability with suitable examples.</h3>
+        <h4>Definition</h4>
+        <p><b>Serializability</b> is the property that a concurrent schedule should produce the same effect as some serial execution of the same transactions. It is the fundamental correctness criterion for concurrent transactions.</p>
+
+        <h4>1) Conflict serializability</h4>
+        <p>A schedule is conflict serializable if it can be transformed into a serial schedule by repeatedly swapping non-conflicting operations.</p>
+        <p>Two operations conflict if:</p>
+        <ul>
+          <li>They belong to different transactions,</li>
+          <li>They access the same data item, and</li>
+          <li>At least one of them is a write operation.</li>
+        </ul>
+
+        <h4>Example of conflict-serializable schedule</h4>
+        <pre>S1: R1(X)  W1(X)  R2(X)  W2(X)</pre>
+        <p>Conflicting order forces <code>T1 → T2</code>. Hence the schedule is equivalent to the serial order <code>T1, T2</code>.</p>
+
+        <h4>Precedence graph method</h4>
+        <ol>
+          <li>Create one node for each transaction.</li>
+          <li>Draw edge <code>Ti → Tj</code> if an operation of <code>Ti</code> conflicts with and occurs before an operation of <code>Tj</code> on the same item.</li>
+          <li>If the graph is acyclic, the schedule is conflict serializable.</li>
+        </ol>
+
+        <h4>2) View serializability</h4>
+        <p>A schedule is view serializable if it is view equivalent to some serial schedule. Two schedules are view equivalent if:</p>
+        <ul>
+          <li>Initial reads are preserved,</li>
+          <li>Reads-from relationships are preserved, and</li>
+          <li>Final write on each data item is preserved.</li>
+        </ul>
+
+        <h4>Example of view-serializable but not conflict-serializable schedule</h4>
+        <pre>S2: W1(X)  W2(X)  W1(X)</pre>
+        <p>This schedule contains a cycle in the conflict graph (<code>T1 → T2</code> and <code>T2 → T1</code>), so it is <b>not conflict serializable</b>. However, since there are no reads and the final write is by <code>T1</code>, it is view equivalent to serial schedule <code>T2, T1</code>. Hence it is <b>view serializable</b>.</p>
+
+        <h4>Comparison</h4>
+        <table>
+          <tr><th>Aspect</th><th>Conflict Serializability</th><th>View Serializability</th></tr>
+          <tr><td>Basis</td><td>Order of conflicting operations</td><td>View equivalence</td></tr>
+          <tr><td>Testing</td><td>Easy using precedence graph</td><td>More complex</td></tr>
+          <tr><td>Relationship</td><td>Subset</td><td>Superset</td></tr>
+        </table>
+
+        <div class="summary-box"><b>Conclusion:</b> Serializability ensures correctness of concurrent execution. Conflict serializability is easier to test and widely used, while view serializability is more general but harder to verify.</div>
+      </article>
+
+      <article class="q" id="m5q3">
+        <div class="tag">Module 5 • Q3</div>
+        <h3>Explain the Two-Phase Locking (2PL) protocol. Discuss its advantages and disadvantages.</h3>
+        <h4>Definition</h4>
+        <p><b>Two-Phase Locking (2PL)</b> is a concurrency control protocol that ensures conflict serializability by dividing transaction locking into two phases: a growing phase and a shrinking phase.</p>
+
+        <div class="diagram">
+          <div class="diagram-title">Phases of 2PL</div>
+          <svg viewBox="0 0 900 220" role="img" aria-label="Two phase locking diagram">
+            <line x1="70" y1="170" x2="850" y2="170" stroke="#333" stroke-width="2"/>
+            <line x1="70" y1="170" x2="70" y2="40" stroke="#333" stroke-width="2"/>
+            <polyline points="90,150 200,120 330,90 450,80 560,105 680,130 810,150" fill="none" stroke="#2247a5" stroke-width="4"/>
+            <line x1="460" y1="50" x2="460" y2="185" stroke="#888" stroke-dasharray="6 6" stroke-width="2"/>
+            <text x="220" y="45" text-anchor="middle" font-size="23" fill="#0c7c59" font-weight="bold">Growing phase</text>
+            <text x="220" y="70" text-anchor="middle" font-size="15">Locks may be acquired</text>
+            <text x="220" y="90" text-anchor="middle" font-size="15">No locks are released</text>
+            <text x="660" y="45" text-anchor="middle" font-size="23" fill="#8a6300" font-weight="bold">Shrinking phase</text>
+            <text x="660" y="70" text-anchor="middle" font-size="15">Locks are released</text>
+            <text x="660" y="90" text-anchor="middle" font-size="15">No new locks are acquired</text>
+            <text x="460" y="35" text-anchor="middle" font-size="18" fill="#394150">Lock point</text>
+            <text x="855" y="185" text-anchor="end" font-size="16">Time</text>
+            <text x="55" y="50" text-anchor="start" font-size="16">No. of locks held</text>
+          </svg>
+        </div>
+
+        <h4>Rules of 2PL</h4>
+        <ol>
+          <li>Before reading a data item, transaction must acquire a <b>shared (S)</b> lock.</li>
+          <li>Before writing a data item, transaction must acquire an <b>exclusive (X)</b> lock.</li>
+          <li>Once a transaction releases any lock, it cannot acquire any new lock.</li>
+        </ol>
+
+        <h4>Phases</h4>
+        <ol>
+          <li><b>Growing phase:</b> transaction acquires locks and may upgrade them, but does not release any.</li>
+          <li><b>Shrinking phase:</b> transaction releases locks and cannot acquire new ones.</li>
+        </ol>
+
+        <h4>Strict 2PL</h4>
+        <p>In <b>Strict 2PL</b>, all exclusive locks are held until commit or abort. This prevents cascading rollbacks and is widely used in practice.</p>
+
+        <h4>Advantages</h4>
+        <ul>
+          <li>Guarantees conflict serializability.</li>
+          <li>Conceptually simple and practical.</li>
+          <li>Strict 2PL avoids cascading aborts.</li>
+          <li>Suitable for multi-user transaction processing.</li>
+        </ul>
+
+        <h4>Disadvantages</h4>
+        <ul>
+          <li>May lead to deadlocks.</li>
+          <li>Can reduce concurrency due to waiting.</li>
+          <li>Lock management overhead exists.</li>
+        </ul>
+
+        <h4>Applications</h4>
+        <p>2PL is used in banking, reservation systems, inventory systems, and OLTP databases where correctness is more important than maximum parallelism.</p>
+
+        <div class="summary-box"><b>Conclusion:</b> Two-Phase Locking is a standard lock-based concurrency protocol. By separating lock acquisition and release into two phases, it guarantees serializability, though deadlock handling is necessary.</div>
+      </article>
+
+      <article class="q" id="m5q4">
+        <div class="tag">Module 5 • Q4</div>
+        <h3>Explain various concurrency control techniques used in database systems with suitable examples.</h3>
+        <h4>Introduction</h4>
+        <p>Concurrency control is the process of coordinating simultaneous execution of transactions so that database consistency is preserved and anomalies such as lost update, dirty read, and inconsistent retrieval are avoided.</p>
+
+        <h4>Main techniques</h4>
+        <ol>
+          <li><b>Lock-based protocols</b>
+            <ul>
+              <li>Use shared and exclusive locks.</li>
+              <li>Example: 2PL and Strict 2PL.</li>
+              <li>Advantage: strong correctness guarantee.</li>
+              <li>Limitation: deadlocks may occur.</li>
+            </ul>
+          </li>
+          <li><b>Timestamp ordering protocol</b>
+            <ul>
+              <li>Each transaction gets a timestamp.</li>
+              <li>Operations are executed in timestamp order.</li>
+              <li>If an operation violates timestamp order, transaction is rolled back.</li>
+              <li>Advantage: deadlock-free.</li>
+              <li>Limitation: more rollbacks may occur.</li>
+            </ul>
+          </li>
+          <li><b>Validation / Optimistic concurrency control</b>
+            <ul>
+              <li>Assumes conflicts are rare.</li>
+              <li>Transaction phases: read, validate, write.</li>
+              <li>Used in low-conflict environments.</li>
+              <li>Advantage: high concurrency.</li>
+              <li>Limitation: validation failures under high contention.</li>
+            </ul>
+          </li>
+          <li><b>Multiversion concurrency control (MVCC)</b>
+            <ul>
+              <li>Maintains multiple versions of data items.</li>
+              <li>Readers can access old committed versions without blocking writers.</li>
+              <li>Advantage: excellent read concurrency.</li>
+              <li>Limitation: version management overhead.</li>
+            </ul>
+          </li>
+          <li><b>Graph-based / tree-based protocols</b>
+            <ul>
+              <li>Transactions follow a predefined partial order on data items.</li>
+              <li>Can prevent deadlocks under certain conditions.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h4>Typical anomalies prevented</h4>
+        <ul>
+          <li><b>Lost update:</b> one update overwrites another.</li>
+          <li><b>Dirty read:</b> reading uncommitted data.</li>
+          <li><b>Unrepeatable read:</b> same query returns different values in one transaction.</li>
+          <li><b>Phantom problem:</b> row set changes between repeated predicate queries.</li>
+        </ul>
+
+        <h4>Comparison table</h4>
+        <table>
+          <tr><th>Technique</th><th>Main idea</th><th>Advantage</th><th>Disadvantage</th></tr>
+          <tr><td>Lock-based</td><td>Control access with locks</td><td>Reliable</td><td>Deadlocks</td></tr>
+          <tr><td>Timestamp ordering</td><td>Enforce timestamp order</td><td>No deadlocks</td><td>More restarts</td></tr>
+          <tr><td>Optimistic</td><td>Validate at commit time</td><td>Good for low conflicts</td><td>Abort on validation failure</td></tr>
+          <tr><td>MVCC</td><td>Keep multiple versions</td><td>High read concurrency</td><td>Storage/version overhead</td></tr>
+        </table>
+
+        <div class="summary-box"><b>Conclusion:</b> Different concurrency control techniques suit different workloads. Lock-based protocols are common in OLTP systems, timestamp and optimistic methods are useful in special cases, and MVCC is excellent for read-intensive environments.</div>
+      </article>
+
+      <article class="q" id="m5q5">
+        <div class="tag">Module 5 • Q5</div>
+        <h3>Discuss database recovery techniques. Explain log-based recovery, deferred update, immediate update, and checkpointing.</h3>
+        <h4>Introduction</h4>
+        <p>Database recovery is the process of restoring the database to a correct and consistent state after failures such as transaction failure, system crash, or media failure.</p>
+
+        <h4>Need for recovery</h4>
+        <ul>
+          <li>To preserve atomicity and durability.</li>
+          <li>To recover committed data after crash.</li>
+          <li>To remove effects of incomplete transactions.</li>
+        </ul>
+
+        <h4>1) Log-based recovery</h4>
+        <p>The DBMS maintains a log file containing records of transaction actions.</p>
+        <p>Typical log records:</p>
+        <pre>&lt;start T&gt;
+&lt;T, X, old_value, new_value&gt;
+&lt;commit T&gt;
+&lt;abort T&gt;</pre>
+        <p>The log is written according to the <b>Write-Ahead Logging (WAL)</b> rule, that is, log records are written to stable storage before the corresponding database page is written.</p>
+
+        <h4>2) Deferred update</h4>
+        <p>In deferred update, changes made by a transaction are not written to the database until the transaction commits.</p>
+        <ul>
+          <li>If crash occurs before commit, no undo is required.</li>
+          <li>After crash, only <b>REDO</b> of committed transactions may be needed.</li>
+        </ul>
+
+        <h4>3) Immediate update</h4>
+        <p>In immediate update, changes may be written to the database before the transaction commits.</p>
+        <ul>
+          <li>If crash occurs, uncommitted changes must be undone.</li>
+          <li>Committed changes may need redo if not yet reflected on disk.</li>
+          <li>Hence both <b>UNDO</b> and <b>REDO</b> may be required.</li>
+        </ul>
+
+        <h4>4) Checkpointing</h4>
+        <p>A checkpoint is a recovery mechanism that periodically saves a known consistent state and marks it in the log.</p>
+        <p><b>Purpose:</b> to reduce recovery time by limiting how far back the recovery manager must scan.</p>
+        <p>At checkpoint time:</p>
+        <ol>
+          <li>Modified buffers are flushed to disk.</li>
+          <li>A checkpoint record is written into the log.</li>
+          <li>During crash recovery, scanning can start from the latest checkpoint instead of the beginning of the log.</li>
+        </ol>
+
+        <div class="diagram">
+          <div class="diagram-title">Recovery idea using log and checkpoint</div>
+          <svg viewBox="0 0 930 170" role="img" aria-label="Log based recovery diagram">
+            <line x1="40" y1="95" x2="890" y2="95" stroke="#333" stroke-width="3"/>
+            <circle cx="120" cy="95" r="12" fill="#2247a5"/>
+            <circle cx="280" cy="95" r="12" fill="#2247a5"/>
+            <circle cx="470" cy="95" r="14" fill="#0c7c59"/>
+            <circle cx="660" cy="95" r="12" fill="#2247a5"/>
+            <circle cx="820" cy="95" r="12" fill="#c0392b"/>
+            <text x="120" y="60" text-anchor="middle" font-size="15">&lt;start T1&gt;</text>
+            <text x="280" y="60" text-anchor="middle" font-size="15">updates</text>
+            <text x="470" y="55" text-anchor="middle" font-size="16" fill="#0c7c59" font-weight="bold">CHECKPOINT</text>
+            <text x="660" y="60" text-anchor="middle" font-size="15">&lt;commit T1&gt;</text>
+            <text x="820" y="60" text-anchor="middle" font-size="15" fill="#c0392b">CRASH</text>
+            <text x="470" y="135" text-anchor="middle" font-size="15">Recovery scans from latest checkpoint</text>
+          </svg>
+        </div>
+
+        <h4>Advantages of recovery techniques</h4>
+        <ul>
+          <li>Ensures durability of committed data.</li>
+          <li>Prevents permanent corruption due to crashes.</li>
+          <li>Improves reliability of transaction processing systems.</li>
+        </ul>
+
+        <h4>Limitations</h4>
+        <ul>
+          <li>Log maintenance introduces overhead.</li>
+          <li>Recovery design is complex.</li>
+          <li>Frequent checkpoints may affect performance.</li>
+        </ul>
+
+        <div class="summary-box"><b>Conclusion:</b> Database recovery relies on logging, undo/redo mechanisms, deferred or immediate update strategies, and checkpointing. These techniques together ensure that the database can be restored to a consistent state after failures.</div>
+      </article>
+    </section>
+
+    <section class="module" id="refs">
+      <div class="module-head"><h2>Reference Links Used for Preparation</h2></div>
+      <article class="q">
+        <ol>
+          <li><a href="https://www.postgresql.org/docs/current/sql-createview.html">PostgreSQL CREATE VIEW documentation</a></li>
+          <li><a href="https://www.postgresql.org/docs/current/plpgsql-trigger.html">PostgreSQL Trigger Functions documentation</a></li>
+          <li><a href="https://cs186berkeley.net/notes/note12/">UC Berkeley CS186 — Transactions &amp; Concurrency II</a></li>
+          <li><a href="https://people.cs.pitt.edu/~chang/156/03ERmodel.html">ER model lecture notes</a></li>
+          <li><a href="https://www.cbcb.umd.edu/confcour/Spring2014/CMSC424/Relational_algebra.pdf">Relational algebra lecture notes</a></li>
+        </ol>
+        <p>Note: Diagrams in this notebook are redrawn as clean inline SVG figures for exam-style study and offline HTML viewing.</p>
+      </article>
+    </section>
+
+    <footer>
+      <p><b>End of notebook.</b> This file is self-contained and suitable for browser viewing, printing, or further editing.</p>
+    </footer>
+  </div>
+</body>
+</html>
