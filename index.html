@@ -391,6 +391,52 @@
       .toc > ul > li > ul > li > a { padding: 10px 14px; font-size: 0.95rem; }
     }
 
+  
+    /* Mobile Optimization */
+    .back-to-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 1000;
+      opacity: 0.8;
+      transition: all 0.3s;
+    }
+    .back-to-top:hover {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+    .back-to-top svg { width: 28px; height: 28px; }
+    
+    @media (min-width: 1024px) {
+      .back-to-top { display: none; }
+    }
+    
+    @media (max-width: 768px) {
+      .wrap { padding: 20px 16px; }
+      header { padding: 32px 20px; border-radius: 12px; margin-bottom: 32px; }
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1.8rem; margin-top: 24px; }
+      h3 { font-size: 1.3rem; }
+      article.q { padding: 24px 20px; border-radius: 12px; margin: 24px 0; }
+      .toc { padding: 24px 16px; margin: 24px 0; border-radius: 12px; }
+      .toc h2 { font-size: 1.8rem; }
+      .toc > ul > li { padding: 16px 12px; }
+      .toc > ul > li > a { font-size: 1.2rem; }
+      .two-col { grid-template-columns: 1fr; }
+      .diagram { padding: 16px; border-radius: 8px; }
+      .formula { padding: 16px; font-size: 0.95rem; }
+      pre { padding: 16px; font-size: 0.85rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -2332,5 +2378,12 @@ R2(B, C)</pre>
       <p><b>End of notebook.</b> This file is self-contained and suitable for browser viewing, printing, or further editing.</p>
     </footer>
   </div>
+
+  <a href="#" class="back-to-top" aria-label="Back to Top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 15l7-7 7 7"/>
+    </svg>
+  </a>
 </body>
+
 </html>
