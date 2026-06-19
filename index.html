@@ -259,7 +259,7 @@
       padding-bottom: 12px;
       display: inline-block;
     }
-    svg { max-width: 100%; height: auto; }
+    svg { max-width: 100%; width: 100%; height: auto; }
     pre {
       background: #020617;
       color: #e2e8f0;
@@ -359,6 +359,7 @@
     
     @media (min-width: 1024px) {
       .wrap {
+        overflow-x: visible; /* so sticky works */
         display: grid;
         grid-template-columns: 350px 1fr;
         gap: 40px;
@@ -437,6 +438,34 @@
       pre { padding: 16px; font-size: 0.85rem; }
     }
 
+  
+    /* Prevent Horizontal Overflow */
+    html { width: 100%; overflow-x: hidden; }
+    body { width: 100%; overflow-x: hidden; }
+    .wrap { width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: clip; }
+    article.q, .module-head, .toc, .note, .source-box, .diagram {
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+    }
+    pre, code, .formula {
+      max-width: 100%;
+      overflow-x: auto;
+      white-space: pre-wrap; /* allow wrapping on mobile */
+      word-break: break-all;
+    }
+    table {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+    }
+
+      .content-area { min-width: 0; }
+    }
   </style>
 </head>
 <body>
