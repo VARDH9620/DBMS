@@ -354,6 +354,43 @@
       table { background: #fff; border-color: #cbd5e1; }
       .formula, pre { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; box-shadow: none; }
     }
+  
+    html { scroll-behavior: smooth; }
+    
+    @media (min-width: 1024px) {
+      .wrap {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 40px;
+        max-width: 1500px;
+        align-items: start;
+      }
+      header, .note, .source-box, footer {
+        grid-column: 1 / -1;
+      }
+      .toc {
+        position: sticky;
+        top: 24px;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+        margin: 0;
+        padding: 24px;
+      }
+      .toc::-webkit-scrollbar { width: 6px; }
+      .toc::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; border: none; }
+      .toc::-webkit-scrollbar-track { background: transparent; }
+      
+      .toc h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+      }
+      .toc > ul { gap: 16px; }
+      .toc > ul > li { padding: 16px; }
+      .toc > ul > li > a { font-size: 1.1rem; margin-bottom: 12px; }
+      .toc > ul > li > ul { grid-template-columns: 1fr; gap: 8px; }
+      .toc > ul > li > ul > li > a { padding: 10px 14px; font-size: 0.95rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -435,6 +472,7 @@
         </li>
       </ul>
     </div>
+    <div class="content-area">
     <section class="module" id="m1">
       <div class="module-head"><h2>Module 1: Introduction to Databases &amp; ER Model</h2></div>
 
