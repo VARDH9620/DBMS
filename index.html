@@ -2236,45 +2236,7 @@ R2(B, C)</pre>
         <p>A <b>Transaction</b> is a logical unit of database processing that includes one or more access operations (read, write, insert, delete, update). It is an atomic unit of work that must either be completed entirely or aborted entirely.</p>
 
         <h4>2. The State Transition Diagram of a Transaction</h4>
-        <div class="diagram">
-          <svg viewBox="0 0 800 300" style="max-width:700px; display:block; margin:auto;" role="img" aria-label="Transaction state diagram">
-            <ellipse cx="150" cy="150" rx="60" ry="35" fill="#e9efff" stroke="#2247a5" stroke-width="2"/>
-            <text x="150" y="155" text-anchor="middle" font-weight="bold" fill="#173a8b">Active</text>
-            
-            <ellipse cx="350" cy="60" rx="70" ry="35" fill="#fff7e8" stroke="#c08b00" stroke-width="2"/>
-            <text x="350" y="65" text-anchor="middle" font-weight="bold" fill="#8a6300">Partially<br>Committed</text>
-            
-            <ellipse cx="600" cy="60" rx="60" ry="35" fill="#eefbf5" stroke="#0c7c59" stroke-width="2"/>
-            <text x="600" y="65" text-anchor="middle" font-weight="bold" fill="#0c7c59">Committed</text>
-
-            <ellipse cx="350" cy="240" rx="60" ry="35" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-            <text x="350" y="245" text-anchor="middle" font-weight="bold" fill="#991b1b">Failed</text>
-            
-            <ellipse cx="600" cy="240" rx="60" ry="35" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
-            <text x="600" y="245" text-anchor="middle" font-weight="bold" fill="#334155">Aborted</text>
-
-            <!-- Arrows -->
-            <!-- Active to Partially Committed -->
-            <line x1="180" y1="120" x2="295" y2="75" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
-            <text x="210" y="85" font-size="12" transform="rotate(-35 210,85)">Read/Write ends</text>
-
-            <!-- Partially Committed to Committed -->
-            <line x1="420" y1="60" x2="540" y2="60" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
-            <text x="480" y="50" text-anchor="middle" font-size="12">Commit</text>
-
-            <!-- Active to Failed -->
-            <line x1="180" y1="180" x2="300" y2="225" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
-            <text x="210" y="225" font-size="12" transform="rotate(20 210,225)">Errors / Crash</text>
-
-            <!-- Partially Committed to Failed -->
-            <line x1="350" y1="95" x2="350" y2="205" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
-            <text x="360" y="155" font-size="12">Write fail</text>
-
-            <!-- Failed to Aborted -->
-            <line x1="410" y1="240" x2="540" y2="240" stroke="#333" stroke-width="2" marker-end="url(#a)"/>
-            <text x="480" y="230" text-anchor="middle" font-size="12">Rollback</text>
-          </svg>
-        </div>
+        
 
         <h4>3. Example Context</h4>
         <p>Consider a bank transfer of $500 from Account A (balance $1000) to Account B (balance $2000).</p>
